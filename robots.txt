@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://hitesh.one/sitemap.xml
+Sitemap: https://hiteshhedwig.github.io/sitemap.xml
