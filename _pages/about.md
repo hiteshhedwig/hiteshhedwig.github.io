@@ -50,7 +50,7 @@ My industry experience in AI and autonomous systems has shown me the cutting edg
 
 It's the bridge between my practical experience and future contributions to the field.
 
-<!-- 
+
 <a href="{{ page.cv_pdf | prepend: 'assets/pdf/' | relative_url }}" target="_blank" rel="noopener noreferrer" class="cv-button-large" role="button">
   <i class="fas fa-file-pdf fa-lg"></i> View Full CV
-</a> -->
+</a>
