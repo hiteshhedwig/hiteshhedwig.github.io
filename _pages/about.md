@@ -19,7 +19,7 @@ cv_pdf: CV_HITESH_KUMAR.pdf
 
 
 
-I am a passionate Mechanical Engineering graduate from Delhi Technological University (DTU, 2020), eagerly looking to pursue an MS in AI/Robotics to further my expertise in autonomous systems and artificial intelligence.
+I am a Mechanical Engineering graduate from Delhi Technological University (DTU, 2020), eagerly looking to pursue an MS in AI/Robotics to further my expertise in autonomous systems and artificial intelligence.
 
 #### Journey
 
