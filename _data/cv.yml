@@ -2,11 +2,11 @@
   type: map
   contents:
     - name: Full Name
-      value: Albert Einstein
+      value: Hitesh Kumar
     - name: Date of Birth
-      value: 14th March 1879
+      value: 17th Dec 1998
     - name: Languages
-      value: English, German
+      value: English, Hindi
 
 - title: Education
   type: time_table

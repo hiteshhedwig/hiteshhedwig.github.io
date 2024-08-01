@@ -1,14 +1,12 @@
 github_users:
-  - torvalds
-  - alshedivat
+  - hiteshhedwig
 
 repo_description_lines_max: 2
 
 github_repos:
-  - alshedivat/al-folio
-  - jekyll/jekyll
-  - twbs/bootstrap
-  - jquery/jquery
-  - FortAwesome/Font-Awesome
-  - mathjax/MathJax
-  - jpswalsh/academicons
+  - hiteshhedwig/SfM_clean
+  - hiteshhedwig/visual_odo_max
+  - hiteshhedwig/git_basics
+  - hiteshhedwig/yolov8-reid-tracking-demo
+
+
