@@ -5,4 +5,4 @@ inline: true
 related_posts: false
 ---
 
-Launched [ADAS](https://www.youtube.com/watch?v=rYAtfVqzBkM) + [NVA](https://www.youtube.com/shorts/8t6pHc9_bcY) in the indian market.
+Launched cargo EV with [ADAS](https://www.youtube.com/watch?v=rYAtfVqzBkM) + [NVA](https://www.youtube.com/shorts/8t6pHc9_bcY) into the indian market.
