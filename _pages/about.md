@@ -26,7 +26,7 @@ I am a Mechanical Engineering graduate from Delhi Technological University (DTU,
 In university, i served as a Autonomous Systems Lead for Team [InfernoDTU](https://www.youtube.com/@teaminferno). The Achievements include 6th
 Rank in IRC(Indian Rover Challenge) among 32 international teams.
 
-3+ years developing AI for smart cities and autonomous vehicle systems at startups like [Euler Motors(valuation at $300M)](https://www.eulermotors.com). Further, I was responsible for presenting ADAS functionalities during crucial investor meetings.
+3+ years developing AI for smart cities and autonomous vehicle systems at startups like [Euler Motors(valuation at $300M)](https://www.eulermotors.com). Further, I was responsible for presenting ADAS functionalities during crucial investor meetings. AND it has been launched into the indian market!! Have a look at [this ADAS video](https://www.youtube.com/watch?v=rYAtfVqzBkM) and [NVA video](https://www.youtube.com/shorts/8t6pHc9_bcY)
 
 Next step for me is, **Masters**.
 
