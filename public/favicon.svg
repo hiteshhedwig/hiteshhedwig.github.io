@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <text y=".9em" font-size="80">H</text>
+  <style>
+    text {
+      font-family: Georgia, serif;
+      fill: #c45d3e;
+    }
+  </style>
+</svg>

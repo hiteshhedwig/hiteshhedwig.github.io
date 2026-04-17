@@ -1,0 +1,96 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Base title="About — Hitesh">
+  <Nav />
+
+  <main class="flex-1">
+    <section class="max-w-3xl mx-auto px-6 pt-16 pb-12">
+      <h1 class="font-serif text-3xl font-semibold mb-8">About</h1>
+
+      <div class="space-y-6 text-ink-light leading-relaxed">
+        <p>
+          Hey there! I'm Hitesh — a robotics and perception engineer who gets unreasonably excited
+          about cameras, point clouds, and making robots do useful things in the real world.
+        </p>
+
+        <p>
+          I spend most of my time at the intersection of <strong class="text-ink font-medium">computer vision</strong>,
+          <strong class="text-ink font-medium">robot perception</strong>, and
+          <strong class="text-ink font-medium">deep learning</strong>. I've worked on SLAM systems, grasp estimation
+          pipelines, and multi-sensor fusion — mostly using C++ and Python, with a healthy dose of ROS.
+        </p>
+
+        <p>
+          Outside of work, I enjoy reading research papers (yes, for fun), tinkering with
+          side projects, and writing about what I learn. I believe the best way to understand
+          something deeply is to try explaining it to someone else.
+        </p>
+
+        <div class="bg-paper border border-border rounded-xl p-6 my-8">
+          <h2 class="font-serif text-lg font-semibold mb-3 text-ink">A few things about me</h2>
+          <ul class="space-y-2 text-sm">
+            <li class="flex gap-3">
+              <span class="text-accent shrink-0">&mdash;</span>
+              <span>I'm a morning person who does their best thinking before 10am</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-accent shrink-0">&mdash;</span>
+              <span>My first "robot" was a line follower built from an Arduino and prayers</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-accent shrink-0">&mdash;</span>
+              <span>I think the best documentation is the one that actually exists</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-accent shrink-0">&mdash;</span>
+              <span>I use Neovim and I will not apologize for it</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="text-accent shrink-0">&mdash;</span>
+              <span>Coffee preference: filter, black, no negotiation</span>
+            </li>
+          </ul>
+        </div>
+
+        <h2 class="font-serif text-xl font-semibold text-ink pt-4">Get in touch</h2>
+        <p>
+          I love hearing from people working on interesting problems. Whether you want to
+          collaborate, chat about robotics, or just say hello — feel free to reach out.
+        </p>
+
+        <div class="flex flex-wrap gap-3 pt-2">
+          <a
+            href="mailto:hello@hitesh.one"
+            class="px-4 py-2 border border-border-dark rounded-lg text-sm text-ink-light hover:text-accent hover:border-accent transition-colors"
+          >
+            hello@hitesh.one
+          </a>
+          <a
+            href="https://github.com"
+            class="px-4 py-2 border border-border-dark rounded-lg text-sm text-ink-light hover:text-accent hover:border-accent transition-colors"
+          >
+            GitHub
+          </a>
+          <a
+            href="https://twitter.com"
+            class="px-4 py-2 border border-border-dark rounded-lg text-sm text-ink-light hover:text-accent hover:border-accent transition-colors"
+          >
+            Twitter
+          </a>
+          <a
+            href="https://linkedin.com"
+            class="px-4 py-2 border border-border-dark rounded-lg text-sm text-ink-light hover:text-accent hover:border-accent transition-colors"
+          >
+            LinkedIn
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>

@@ -1,0 +1,86 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+const categories = [
+  {
+    name: "Robotics & Perception",
+    icon: "~",
+    items: [
+      { title: "ORB-SLAM3 Paper", note: "The definitive visual SLAM system. Dense reading." },
+      { title: "Russ Tedrake — Underactuated Robotics", note: "Best free robotics course online." },
+      { title: "Open3D Documentation", note: "Go-to for 3D point cloud processing." },
+      { title: "MoveIt2 Tutorials", note: "Motion planning for ROS2. Start here." },
+    ],
+  },
+  {
+    name: "Machine Learning & AI",
+    icon: "*",
+    items: [
+      { title: "Andrej Karpathy's Blog", note: "Clear thinking about neural networks." },
+      { title: "Distill.pub Archive", note: "The gold standard for ML explanations. Sorely missed." },
+      { title: "Lilian Weng's Blog", note: "Comprehensive overviews of ML topics." },
+      { title: "Papers With Code", note: "Find SOTA and implementations quickly." },
+    ],
+  },
+  {
+    name: "Tools & Workflow",
+    icon: ">",
+    items: [
+      { title: "Neovim Config Inspiration", note: "kickstart.nvim — great starting point." },
+      { title: "The Missing Semester (MIT)", note: "Shell, Git, Vim — things school doesn't teach." },
+      { title: "Docker for Robotics", note: "Containerized ROS workflows. Life-changing." },
+      { title: "Zotero", note: "Free, open-source reference manager. Essential." },
+    ],
+  },
+  {
+    name: "Thinking & Writing",
+    icon: "#",
+    items: [
+      { title: "Paul Graham's Essays", note: "Always worth re-reading." },
+      { title: "Gwern.net", note: "Deep, obsessive, beautiful personal site." },
+      { title: "Andy Matuschak's Working Notes", note: "Evergreen notes and spaced repetition." },
+      { title: "Bartosz Ciechanowski", note: "Interactive visual explanations. Incredible craft." },
+    ],
+  },
+];
+---
+
+<Base title="Bookmarks — Hitesh">
+  <Nav />
+
+  <main class="flex-1">
+    <section class="max-w-3xl mx-auto px-6 pt-16 pb-12">
+      <h1 class="font-serif text-3xl font-semibold mb-2">Bookmarks</h1>
+      <p class="text-ink-light mb-10">
+        Resources, tools, and websites I keep coming back to. Sharing in case they're useful to you
+        too.
+      </p>
+
+      <div class="space-y-10">
+        {categories.map((cat) => (
+          <div>
+            <h2 class="font-serif text-xl font-semibold mb-4 flex items-center gap-2">
+              <span class="font-mono text-accent text-sm">{cat.icon}</span>
+              {cat.name}
+            </h2>
+            <div class="space-y-2">
+              {cat.items.map((item) => (
+                <div class="flex items-start gap-3 py-2 px-4 rounded-lg hover:bg-cream-dark/50 transition-colors">
+                  <span class="text-border-dark mt-0.5 shrink-0">&bull;</span>
+                  <div>
+                    <span class="font-medium text-sm">{item.title}</span>
+                    <span class="text-sm text-ink-lighter ml-2">— {item.note}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
