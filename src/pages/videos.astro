@@ -1,0 +1,98 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { getCollection } from "astro:content";
+
+const videos = (await getCollection("videos", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+---
+
+<Base title="Videos — Hitesh">
+  <Nav />
+
+  <main class="flex-1">
+    <section class="bg-cream">
+      <div class="max-w-5xl mx-auto px-6 pt-16 pb-6">
+        <div class="mb-2 fade-up">
+          <h1 class="font-serif text-3xl font-semibold">Videos</h1>
+        </div>
+        <p class="text-ink-light fade-up fade-up-delay-1">
+          Learning in public. Tutorials, deep dives, and the occasional "let me figure this out on camera" session.
+        </p>
+      </div>
+    </section>
+
+    <section class="bg-warm-white">
+      <div class="max-w-5xl mx-auto px-6 py-10">
+        <div class="grid gap-6">
+          {videos.map((video) => (
+            <div class="group border border-border rounded-xl overflow-hidden bg-cream/50 hover:border-border-dark hover:shadow-md hover:-translate-y-0.5 transition-all fade-up">
+              <div class="flex flex-col sm:flex-row">
+                <div class="sm:w-72 shrink-0 bg-cream-dark relative overflow-hidden">
+                  <img
+                    src={`https://img.youtube.com/vi/${video.data.youtubeId}/mqdefault.jpg`}
+                    alt={video.data.title}
+                    class="w-full h-full object-cover aspect-video sm:aspect-auto"
+                    loading="lazy"
+                  />
+                  <a
+                    href={`https://www.youtube.com/watch?v=${video.data.youtubeId}`}
+                    class="absolute inset-0 flex items-center justify-center bg-ink/10 group-hover:bg-ink/20 transition-colors"
+                  >
+                    <div class="w-10 h-10 rounded-full bg-accent/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <svg class="w-4 h-4 text-cream ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M6.5 5.5v9l7-4.5-7-4.5z" />
+                      </svg>
+                    </div>
+                  </a>
+                </div>
+                <div class="p-5 flex-1">
+                  <span class="text-xs font-mono text-ink-lighter">{formatDate(video.data.date)}</span>
+                  <h2 class="font-medium text-lg mt-1 group-hover:text-accent transition-colors">
+                    {video.data.title}
+                  </h2>
+                  <p class="text-sm text-ink-light leading-relaxed mt-2">{video.data.description}</p>
+                  <div class="flex gap-2 mt-3">
+                    {video.data.tags.map((tag) => (
+                      <span class="text-xs px-2 py-0.5 rounded-full bg-cream-dark text-ink-lighter">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="mt-8 text-center fade-up">
+          <a
+            href="https://youtube.com"
+            class="inline-block px-5 py-2.5 border border-border-dark text-ink-light rounded-lg text-sm font-medium hover:border-accent hover:text-accent hover:-translate-y-0.5 transition-all"
+          >
+            Subscribe on YouTube &rarr;
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("visible");
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+  );
+  document.querySelectorAll(".fade-up").forEach((el) => observer.observe(el));
+</script>

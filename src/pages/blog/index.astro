@@ -1,0 +1,75 @@
+---
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+---
+
+<Base title="Blog — Hitesh">
+  <Nav />
+
+  <main class="flex-1">
+    <section class="bg-cream">
+      <div class="max-w-5xl mx-auto px-6 pt-16 pb-6">
+        <div class="mb-2 fade-up">
+          <h1 class="font-serif text-3xl font-semibold">Blog</h1>
+        </div>
+        <p class="text-ink-light fade-up fade-up-delay-1">
+          Writing helps me think. These are notes, tutorials, and opinions — mostly about robotics,
+          perception, and the craft of building things.
+        </p>
+      </div>
+    </section>
+
+    <section class="bg-warm-white">
+      <div class="max-w-5xl mx-auto px-6 py-10">
+        <div class="max-w-3xl space-y-1">
+          {posts.map((post, i) => (
+            <>
+              <a href={`/blog/${post.id}`} class="group block py-5 hover:pl-2 transition-all fade-up">
+                <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6">
+                  <span class="text-sm text-ink-lighter font-mono shrink-0 w-36">{formatDate(post.data.date)}</span>
+                  <div class="flex-1">
+                    <h2 class="font-medium group-hover:text-accent transition-colors">
+                      {post.data.title}
+                    </h2>
+                    <p class="text-sm text-ink-light mt-1 leading-relaxed">{post.data.summary}</p>
+                    <div class="flex gap-2 mt-2">
+                      {post.data.tags.map((tag) => (
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-cream-dark text-ink-lighter">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </a>
+              {i < posts.length - 1 && <hr class="border-border" />}
+            </>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("visible");
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+  );
+  document.querySelectorAll(".fade-up").forEach((el) => observer.observe(el));
+</script>

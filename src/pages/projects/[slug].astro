@@ -1,0 +1,151 @@
+---
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import { getCollection, render } from "astro:content";
+
+const statusColors: Record<string, string> = {
+  Active: "text-sage bg-sage-light/50",
+  Completed: "text-sky bg-sky-light/50",
+  "Open Source": "text-accent bg-accent-light/30",
+  Archived: "text-ink-lighter bg-cream-dark",
+};
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+
+<Base title={`${project.data.title} — Hitesh`}>
+  <Nav />
+
+  <main class="flex-1">
+    <!-- Header -->
+    <section class="bg-cream">
+      <div class="max-w-4xl mx-auto px-6 pt-16 pb-8">
+        <a href="/projects" class="text-sm text-ink-lighter hover:text-accent transition-colors fade-up">
+          &larr; Back to projects
+        </a>
+        <div class="mt-4 fade-up">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <h1 class="font-serif text-3xl sm:text-4xl font-semibold">{project.data.title}</h1>
+            <span
+              class:list={[
+                "text-xs font-medium px-2.5 py-1 rounded-full shrink-0 mt-2",
+                statusColors[project.data.status] || "text-ink-lighter bg-cream-dark",
+              ]}
+            >
+              {project.data.status}
+            </span>
+          </div>
+          <p class="text-ink-light text-lg leading-relaxed">{project.data.description}</p>
+          <div class="flex items-center gap-4 mt-4">
+            <div class="flex gap-2 flex-wrap">
+              {project.data.tags.map((tag) => (
+                <span class="text-xs font-mono px-2 py-0.5 rounded-md bg-cream-dark text-ink-lighter">
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <span class="text-xs text-ink-lighter">{project.data.year}</span>
+          </div>
+          {project.data.links.length > 0 && (
+            <div class="flex gap-3 mt-5">
+              {project.data.links.map((link) => (
+                <a
+                  href={link.href}
+                  class="px-4 py-2 border border-border-dark rounded-lg text-sm text-ink-light hover:text-accent hover:border-accent hover:-translate-y-0.5 hover:shadow-md transition-all"
+                >
+                  {link.label} &rarr;
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <!-- Content (from markdown body) -->
+    <section class="bg-warm-white">
+      <div class="max-w-4xl mx-auto px-6 py-10">
+        <h2 class="font-serif text-xl font-semibold mb-4 fade-up">About this project</h2>
+        <div class="prose prose-neutral max-w-none text-ink-light leading-relaxed fade-up
+          [&_p]:mb-4 [&_strong]:text-ink [&_strong]:font-medium
+          [&_h2]:font-serif [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-ink [&_h2]:mt-8 [&_h2]:mb-3
+          [&_h3]:font-semibold [&_h3]:text-ink [&_h3]:mt-6 [&_h3]:mb-2
+          [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5
+          [&_code]:font-mono [&_code]:text-sm [&_code]:bg-cream-dark [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded
+          [&_a]:text-accent [&_a]:underline [&_a:hover]:text-ink">
+          <Content />
+        </div>
+      </div>
+    </section>
+
+    <!-- Demo Video -->
+    {project.data.demoVideo && (
+      <section class="bg-cream">
+        <div class="max-w-4xl mx-auto px-6 py-10">
+          <h2 class="font-serif text-xl font-semibold mb-4 fade-up">Demo</h2>
+          <div class="rounded-xl overflow-hidden border border-border shadow-sm fade-up">
+            <div class="relative w-full" style="padding-bottom: 56.25%;">
+              <iframe
+                class="absolute inset-0 w-full h-full"
+                src={`https://www.youtube.com/embed/${project.data.demoVideo}`}
+                title={`${project.data.title} demo`}
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- Gallery -->
+    {project.data.images.length > 0 && (
+      <section class={project.data.demoVideo ? "bg-warm-white" : "bg-cream"}>
+        <div class="max-w-4xl mx-auto px-6 py-10">
+          <h2 class="font-serif text-xl font-semibold mb-4 fade-up">Gallery</h2>
+          <div class:list={[
+            "grid gap-4",
+            project.data.images.length === 1 ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2",
+          ]}>
+            {project.data.images.map((image) => (
+              <div class="rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow fade-up">
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  class="w-full h-auto object-cover"
+                  loading="lazy"
+                />
+                <p class="text-xs text-ink-lighter px-3 py-2 bg-cream/50">{image.alt}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+  </main>
+
+  <Footer />
+</Base>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("visible");
+      });
+    },
+    { threshold: 0, rootMargin: "0px 0px -50px 0px" }
+  );
+  document.querySelectorAll(".fade-up").forEach((el) => observer.observe(el));
+</script>

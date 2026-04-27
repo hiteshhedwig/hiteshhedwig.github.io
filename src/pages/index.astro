@@ -2,45 +2,24 @@
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { getCollection } from "astro:content";
 
-const featuredProjects = [
-  {
-    title: "Visual SLAM for Indoor Robots",
-    description: "Real-time visual odometry and mapping system for mobile robots navigating cluttered indoor environments.",
-    tags: ["C++", "ROS2", "OpenCV"],
-    color: "bg-sky-light",
-  },
-  {
-    title: "Grasp Pose Estimation",
-    description: "Deep learning pipeline for predicting stable grasp poses from single RGB-D images.",
-    tags: ["Python", "PyTorch", "Sim2Real"],
-    color: "bg-sage-light",
-  },
-  {
-    title: "LiDAR Object Tracker",
-    description: "Multi-object tracking using 3D LiDAR point clouds with Kalman filtering and Hungarian assignment.",
-    tags: ["Python", "PCL", "ROS"],
-    color: "bg-accent-light/40",
-  },
-];
+const allProjects = await getCollection("projects");
+const featuredProjects = allProjects
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
 
-const recentPosts = [
-  {
-    title: "Why I Still Prefer C++ for Perception Pipelines",
-    date: "March 2026",
-    summary: "Thoughts on when Python falls short and why reaching for C++ is worth the friction.",
-  },
-  {
-    title: "Notes on Sim-to-Real Transfer",
-    date: "February 2026",
-    summary: "Lessons learned from months of trying to make simulated grasping work on real hardware.",
-  },
-  {
-    title: "My Reading System for Research Papers",
-    date: "January 2026",
-    summary: "A simple workflow that finally made paper reading feel manageable and enjoyable.",
-  },
-];
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const recentPosts = allPosts
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+
+const colorMap = ["bg-sky-light", "bg-sage-light", "bg-accent-light/40"];
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
 ---
 
 <Base>
@@ -48,114 +27,207 @@ const recentPosts = [
 
   <main class="flex-1">
     <!-- Hero -->
-    <section class="max-w-3xl mx-auto px-6 pt-16 pb-12">
-      <div class="space-y-6">
-        <p class="text-ink-lighter text-sm font-mono">hello, world</p>
-        <h1 class="font-serif text-4xl sm:text-5xl font-semibold leading-tight">
-          I'm <span class="text-accent">Hitesh</span>.<br />
-          I build things that<br />
-          <span class="italic">see, think & move</span>.
-        </h1>
-        <p class="text-ink-light text-lg max-w-xl leading-relaxed">
-          Roboticist and perception engineer. I love the intersection of cameras, code,
-          and clever algorithms. This is my little corner of the internet where I share
-          what I'm building and learning.
-        </p>
-        <div class="flex gap-4 pt-2">
-          <a
-            href="/projects"
-            class="px-5 py-2.5 bg-ink text-cream rounded-lg text-sm font-medium hover:bg-ink-light transition-colors"
-          >
-            See my work
-          </a>
-          <a
-            href="/about"
-            class="px-5 py-2.5 border border-border-dark text-ink-light rounded-lg text-sm font-medium hover:border-ink-lighter hover:text-ink transition-colors"
-          >
-            More about me
-          </a>
+    <section class="bg-cream">
+      <div class="max-w-5xl mx-auto px-6 pt-16 pb-14">
+        <div class="flex items-start gap-12">
+          <div class="flex-1 space-y-6 fade-up">
+            <p class="text-ink-lighter text-sm font-mono">hello, world</p>
+            <h1 class="font-serif text-4xl sm:text-5xl font-semibold leading-tight">
+              <span id="typewriter-heading"></span><span id="cursor-heading" class="text-accent animate-pulse">|</span>
+            </h1>
+            <p class="text-ink-light text-lg max-w-xl leading-relaxed">
+              Roboticist and perception engineer. I love the intersection of cameras, code,
+              and clever algorithms.
+              <span id="typewriter-sub"></span><span id="cursor-sub" class="text-accent animate-pulse hidden">|</span>
+            </p>
+            <div class="flex gap-4 pt-2">
+              <a
+                href="/projects"
+                class="group px-5 py-2.5 bg-ink text-cream rounded-lg text-sm font-medium hover:bg-ink-light transition-all hover:shadow-md hover:-translate-y-0.5"
+              >
+                See my work
+              </a>
+              <a
+                href="/about"
+                class="px-5 py-2.5 border border-border-dark text-ink-light rounded-lg text-sm font-medium hover:border-ink-lighter hover:text-ink transition-all hover:-translate-y-0.5"
+              >
+                More about me
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Divider -->
-    <div class="max-w-3xl mx-auto px-6">
-      <hr class="border-border" />
-    </div>
-
     <!-- Featured Projects -->
-    <section class="max-w-3xl mx-auto px-6 py-12">
-      <div class="flex items-baseline justify-between mb-8">
-        <h2 class="font-serif text-2xl font-semibold">Featured Projects</h2>
-        <a href="/projects" class="text-sm text-ink-lighter hover:text-accent transition-colors">
-          View all &rarr;
-        </a>
-      </div>
-      <div class="grid gap-4">
-        {featuredProjects.map((project) => (
-          <a
-            href="/projects"
-            class="group block border border-border rounded-xl p-5 hover:border-border-dark hover:shadow-sm transition-all bg-warm-white"
-          >
-            <div class="flex items-start gap-4">
-              <div class={`w-2 h-2 rounded-full mt-2.5 shrink-0 ${project.color}`} />
-              <div class="space-y-2">
-                <h3 class="font-medium group-hover:text-accent transition-colors">
-                  {project.title}
-                </h3>
-                <p class="text-sm text-ink-light leading-relaxed">{project.description}</p>
-                <div class="flex gap-2 flex-wrap">
-                  {project.tags.map((tag) => (
-                    <span class="text-xs font-mono px-2 py-0.5 rounded-md bg-cream-dark text-ink-lighter">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
+    <section class="bg-warm-white">
+      <div class="max-w-5xl mx-auto px-6 py-14">
+        <div class="flex items-start gap-10">
+          <div class="flex-1">
+            <div class="flex items-center justify-between mb-8 fade-up">
+              <h2 class="font-serif text-2xl font-semibold">Featured Projects</h2>
+              <a href="/projects" class="text-sm text-ink-lighter hover:text-accent transition-colors">
+                View all &rarr;
+              </a>
             </div>
-          </a>
-        ))}
+            <div class="grid gap-4">
+              {featuredProjects.map((project, i) => (
+                <a
+                  href={`/projects/${project.id}`}
+                  class:list={[
+                    "group block border border-border rounded-xl p-5 hover:border-border-dark hover:shadow-md transition-all bg-cream/50 hover:-translate-y-0.5 fade-up",
+                    `fade-up-delay-${i + 1}`,
+                  ]}
+                >
+                  <div class="flex items-start gap-4">
+                    <div class={`w-2 h-2 rounded-full mt-2.5 shrink-0 ${colorMap[i] || "bg-sky-light"}`} />
+                    <div class="space-y-2 flex-1">
+                      <h3 class="font-medium group-hover:text-accent transition-colors">
+                        {project.data.title}
+                      </h3>
+                      <p class="text-sm text-ink-light leading-relaxed">{project.data.description}</p>
+                      <div class="flex gap-2 flex-wrap">
+                        {project.data.tags.map((tag) => (
+                          <span class="text-xs font-mono px-2 py-0.5 rounded-md bg-cream-dark text-ink-lighter">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div class="hidden lg:block">
+            <Sidebar />
+          </div>
+        </div>
       </div>
     </section>
-
-    <!-- Divider -->
-    <div class="max-w-3xl mx-auto px-6">
-      <hr class="border-border" />
-    </div>
 
     <!-- Recent Writing -->
-    <section class="max-w-3xl mx-auto px-6 py-12">
-      <div class="flex items-baseline justify-between mb-8">
-        <h2 class="font-serif text-2xl font-semibold">Recent Writing</h2>
-        <a href="/blog" class="text-sm text-ink-lighter hover:text-accent transition-colors">
-          All posts &rarr;
-        </a>
-      </div>
-      <div class="space-y-6">
-        {recentPosts.map((post) => (
-          <a href="/blog" class="group block">
-            <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
-              <span class="text-sm text-ink-lighter font-mono shrink-0">{post.date}</span>
-              <div>
-                <h3 class="font-medium group-hover:text-accent transition-colors">{post.title}</h3>
-                <p class="text-sm text-ink-light mt-1">{post.summary}</p>
-              </div>
-            </div>
-          </a>
-        ))}
+    <section class="bg-cream">
+      <div class="max-w-5xl mx-auto px-6 py-14">
+        <div class="max-w-3xl">
+          <div class="flex items-center justify-between mb-8 fade-up">
+            <h2 class="font-serif text-2xl font-semibold">Recent Writing</h2>
+            <a href="/blog" class="text-sm text-ink-lighter hover:text-accent transition-colors">
+              All posts &rarr;
+            </a>
+          </div>
+          <div class="space-y-0">
+            {recentPosts.map((post, i) => (
+              <a
+                href={`/blog/${post.id}`}
+                class:list={[
+                  "group block py-4 border-b border-border last:border-b-0 hover:pl-2 transition-all fade-up",
+                  `fade-up-delay-${i + 1}`,
+                ]}
+              >
+                <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4">
+                  <span class="text-sm text-ink-lighter font-mono shrink-0">{formatDate(post.data.date)}</span>
+                  <div>
+                    <h3 class="font-medium group-hover:text-accent transition-colors">{post.data.title}</h3>
+                    <p class="text-sm text-ink-light mt-1">{post.data.summary}</p>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Little note -->
-    <section class="max-w-3xl mx-auto px-6 pb-16">
-      <div class="bg-paper border border-border rounded-xl p-6 text-center">
-        <p class="font-serif italic text-ink-light">
-          "The best way to learn is to build something, break it, then write about it."
-        </p>
-        <p class="text-xs text-ink-lighter mt-2">— something I keep telling myself</p>
+    <!-- Quote -->
+    <section class="bg-warm-white">
+      <div class="max-w-5xl mx-auto px-6 py-14">
+        <div class="bg-paper border border-border rounded-xl p-8 text-center fade-up max-w-2xl mx-auto">
+          <p class="font-serif italic text-ink-light text-lg">
+            "The best way to learn is to build something, break it, then write about it."
+          </p>
+          <p class="text-xs text-ink-lighter mt-2">— something I keep telling myself</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sidebar for mobile -->
+    <section class="bg-cream lg:hidden">
+      <div class="max-w-5xl mx-auto px-6 py-10">
+        <Sidebar />
       </div>
     </section>
   </main>
 
   <Footer />
 </Base>
+
+<script>
+  function typewrite(element: HTMLElement, text: string, speed: number): Promise<void> {
+    const tokens: { value: string; visible: boolean }[] = [];
+    let i = 0;
+    while (i < text.length) {
+      if (text[i] === '<') {
+        const closeIdx = text.indexOf('>', i);
+        if (closeIdx !== -1) {
+          tokens.push({ value: text.slice(i, closeIdx + 1), visible: false });
+          i = closeIdx + 1;
+          continue;
+        }
+      }
+      tokens.push({ value: text[i], visible: true });
+      i++;
+    }
+
+    return new Promise((resolve) => {
+      let current = 0;
+      function type() {
+        if (current >= tokens.length) { resolve(); return; }
+        let nextStop = current;
+        while (nextStop < tokens.length && !tokens[nextStop].visible) nextStop++;
+        if (nextStop < tokens.length) nextStop++;
+        current = nextStop;
+        element.innerHTML = tokens.slice(0, current).map(t => t.value).join('');
+        if (current < tokens.length) {
+          setTimeout(type, speed);
+        } else {
+          resolve();
+        }
+      }
+      type();
+    });
+  }
+
+  async function runTypewriter() {
+    const heading = document.getElementById('typewriter-heading')!;
+    const cursorHeading = document.getElementById('cursor-heading')!;
+    const sub = document.getElementById('typewriter-sub')!;
+    const cursorSub = document.getElementById('cursor-sub')!;
+
+    const headingText = `I'm <span class="text-accent">Hitesh</span>.<br/>I build things that<br/><span class="italic">see, think & move</span>.`;
+    const subText = `This is my little corner of the internet where I share what I'm building and learning.`;
+
+    await typewrite(heading, headingText, 40);
+    cursorHeading.classList.add('hidden');
+    cursorSub.classList.remove('hidden');
+    await new Promise(r => setTimeout(r, 300));
+    await typewrite(sub, subText, 25);
+    setTimeout(() => {
+      cursorSub.classList.add('opacity-0');
+      cursorSub.style.transition = 'opacity 1s';
+    }, 1500);
+  }
+
+  runTypewriter();
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("visible");
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+  );
+  document.querySelectorAll(".fade-up").forEach((el) => observer.observe(el));
+</script>

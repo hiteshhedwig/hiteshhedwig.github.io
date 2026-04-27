@@ -9,11 +9,19 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "admin:server": "node admin/server.js",
+    "admin": "concurrently -n astro,admin -c cyan,magenta \"astro dev\" \"node admin/server.js\""
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.1.7",
     "tailwindcss": "^4.2.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "express": "^4.21.2",
+    "gray-matter": "^4.0.3",
+    "multer": "^2.0.1"
   }
 }

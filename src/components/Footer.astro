@@ -1,16 +1,24 @@
 ---
+import { getEntry } from "astro:content";
+
+const configEntry = await getEntry("site", "config");
+const config = configEntry?.data;
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-border mt-auto">
-  <div class="max-w-3xl mx-auto px-6 py-8">
+<footer class="border-t border-border bg-warm-white mt-auto">
+  <div class="max-w-5xl mx-auto px-6 py-8">
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-ink-lighter">
-      <p class="font-serif italic">"Stay curious, build things, share what you learn."</p>
-      <div class="flex gap-4">
-        <a href="https://github.com" class="hover:text-accent transition-colors">GitHub</a>
-        <a href="https://twitter.com" class="hover:text-accent transition-colors">Twitter</a>
-        <a href="mailto:hello@hitesh.one" class="hover:text-accent transition-colors">Email</a>
-      </div>
+      {config?.footerQuote && (
+        <p class="font-serif italic">"{config.footerQuote}"</p>
+      )}
+      {config?.socials && config.socials.length > 0 && (
+        <div class="flex gap-4">
+          {config.socials.map((s) => (
+            <a href={s.href} class="hover:text-accent transition-colors">{s.label}</a>
+          ))}
+        </div>
+      )}
     </div>
     <p class="text-center text-xs text-ink-lighter mt-4">&copy; {year} Hitesh. Made with care.</p>
   </div>

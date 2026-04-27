@@ -3,6 +3,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/projects", label: "Projects" },
   { href: "/blog", label: "Blog" },
+  { href: "/videos", label: "Videos" },
   { href: "/bookmarks", label: "Bookmarks" },
   { href: "/about", label: "About" },
 ];
@@ -11,7 +12,7 @@ const currentPath = Astro.url.pathname;
 ---
 
 <nav class="border-b border-border bg-warm-white/80 backdrop-blur-sm sticky top-0 z-50">
-  <div class="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+  <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
     <a href="/" class="font-serif text-xl font-semibold text-ink hover:text-accent transition-colors">
       hitesh.one
     </a>

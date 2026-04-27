@@ -1,0 +1,50 @@
+---
+import { getEntry } from "astro:content";
+
+const configEntry = await getEntry("site", "config");
+const config = configEntry?.data;
+---
+
+<aside class="lg:w-56 shrink-0 space-y-5">
+  {config?.status && (
+    <div class="bg-warm-white border border-border rounded-xl p-4">
+      <h3 class="text-xs font-mono text-ink-lighter uppercase tracking-wider mb-2">Status</h3>
+      <p class="text-sm text-ink-light">
+        <span class="inline-block w-1.5 h-1.5 rounded-full bg-sage mr-1.5 animate-pulse" />
+        {config.status}
+      </p>
+    </div>
+  )}
+
+  {config?.currentlyReading && (
+    <div class="bg-warm-white border border-border rounded-xl p-4">
+      <h3 class="text-xs font-mono text-ink-lighter uppercase tracking-wider mb-2">Reading</h3>
+      <p class="text-sm font-medium text-ink">{config.currentlyReading.title}</p>
+      <p class="text-xs text-ink-lighter">{config.currentlyReading.author}</p>
+      <div class="mt-2 h-1.5 bg-cream-dark rounded-full overflow-hidden">
+        <div class="h-full bg-sage rounded-full transition-all duration-1000" style={`width: ${config.currentlyReading.progress}%;`} />
+      </div>
+      <p class="text-[10px] font-mono text-ink-lighter mt-1">{config.currentlyReading.progress}% through</p>
+    </div>
+  )}
+
+  {config?.quickLinks && config.quickLinks.length > 0 && (
+    <div class="bg-warm-white border border-border rounded-xl p-4">
+      <h3 class="text-xs font-mono text-ink-lighter uppercase tracking-wider mb-2">Quick links</h3>
+      <ul class="space-y-1.5 text-sm">
+        {config.quickLinks.map((link) => (
+          <li><a href={link.href} class="text-ink-light hover:text-accent transition-colors">&rsaquo; {link.label}</a></li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {config?.randomThought && (
+    <div class="bg-paper border border-dashed border-border-dark rounded-xl p-4">
+      <h3 class="text-xs font-mono text-accent uppercase tracking-wider mb-2">Random thought</h3>
+      <p class="text-sm text-ink-light italic font-serif leading-relaxed">
+        {config.randomThought}
+      </p>
+    </div>
+  )}
+</aside>
