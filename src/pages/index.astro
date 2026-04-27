@@ -3,6 +3,7 @@ import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import Sidebar from "../components/Sidebar.astro";
+import CVWidgets from "../components/CVWidgets.astro";
 import { getCollection } from "astro:content";
 
 const allProjects = await getCollection("projects");
@@ -27,8 +28,8 @@ function formatDate(date: Date): string {
 
   <main class="flex-1">
     <!-- Hero -->
-    <section class="bg-cream">
-      <div class="max-w-5xl mx-auto px-6 pt-16 pb-14">
+    <section class="bg-cream relative overflow-hidden">
+      <div class="max-w-5xl mx-auto px-6 pt-16 pb-14 relative">
         <div class="flex items-start gap-12">
           <div class="flex-1 space-y-6 fade-up">
             <p class="text-ink-lighter text-sm font-mono">hello, world</p>
@@ -54,6 +55,7 @@ function formatDate(date: Date): string {
                 More about me
               </a>
             </div>
+            <CVWidgets />
           </div>
         </div>
       </div>
@@ -205,7 +207,7 @@ function formatDate(date: Date): string {
     const sub = document.getElementById('typewriter-sub')!;
     const cursorSub = document.getElementById('cursor-sub')!;
 
-    const headingText = `I'm <span class="text-accent">Hitesh</span>.<br/>I build things that<br/><span class="italic">see, think & move</span>.`;
+    const headingText = `I'm <span class="text-accent">Hitesh</span>.<br/>I build things that<br/><span id="cv-verb-see" class="relative">see</span>, <em id="cv-verb-think" class="relative">think</em> & <em id="cv-verb-move" class="relative">move</em>.`;
     const subText = `This is my little corner of the internet where I share what I'm building and learning.`;
 
     await typewrite(heading, headingText, 40);
