@@ -37,7 +37,7 @@ const projects = (await getCollection("projects"))
                   "group relative border border-border rounded-xl overflow-hidden bg-cream/60 hover:border-border-dark hover:shadow-xl hover:-translate-y-1.5 transition-all duration-200 cursor-pointer fade-up",
                   `fade-up-delay-${Math.min(i + 1, 3)}`,
                 ]}
-                data-demo-href={`/demos/${project.id}`}
+                data-demo-href={`/demo/${project.id}`}
                 data-images={JSON.stringify(images)}
               >
                 {/* Preview image area */}
