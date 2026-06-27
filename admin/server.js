@@ -257,6 +257,86 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
   res.json({ url, filename: req.file.filename });
 });
 
+// ── Demo import ───────────────────────────────────────────────────────────
+const PUBLIC_DEMOS = path.join(PUBLIC_DIR, "demo-assets");
+
+async function walkDir(dir) {
+  let fileCount = 0, totalSize = 0;
+  const items = await fs.readdir(dir, { withFileTypes: true });
+  for (const item of items) {
+    const full = path.join(dir, item.name);
+    if (item.isDirectory()) {
+      const sub = await walkDir(full);
+      fileCount += sub.fileCount;
+      totalSize += sub.totalSize;
+    } else {
+      fileCount++;
+      totalSize += (await fs.stat(full)).size;
+    }
+  }
+  return { fileCount, totalSize };
+}
+
+async function copyDir(src, dest) {
+  await ensureDir(dest);
+  const items = await fs.readdir(src, { withFileTypes: true });
+  for (const item of items) {
+    const s = path.join(src, item.name);
+    const d = path.join(dest, item.name);
+    if (item.isDirectory()) await copyDir(s, d);
+    else await fs.copyFile(s, d);
+  }
+}
+
+function humanSize(bytes) {
+  const mb = bytes / (1024 * 1024);
+  return mb >= 1 ? `${mb.toFixed(1)} MB` : `${(bytes / 1024).toFixed(0)} KB`;
+}
+
+app.post("/api/demo/inspect", async (req, res) => {
+  try {
+    const { sourcePath } = req.body;
+    if (!sourcePath) throw new Error("sourcePath required");
+    const stat = await fs.stat(sourcePath);
+    if (!stat.isDirectory()) throw new Error("path must be a directory");
+    const { fileCount, totalSize } = await walkDir(sourcePath);
+    const topItems = await fs.readdir(sourcePath, { withFileTypes: true });
+    const topDirs = topItems.filter((d) => d.isDirectory()).map((d) => d.name);
+    const topFiles = topItems.filter((f) => f.isFile()).map((f) => f.name);
+    const entryPoint = topFiles.includes("index.html")
+      ? "index.html"
+      : topFiles.find((f) => f.endsWith(".html")) || null;
+    res.json({ fileCount, totalSize, totalSizeHuman: humanSize(totalSize), entryPoint, topDirs });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post("/api/demo/copy", async (req, res) => {
+  try {
+    const { sourcePath, projectSlug } = req.body;
+    if (!sourcePath || !projectSlug) throw new Error("sourcePath and projectSlug required");
+    const slug = slugify(projectSlug);
+    const destDir = path.join(PUBLIC_DEMOS, slug);
+    try { await fs.rm(destDir, { recursive: true, force: true }); } catch {}
+    await copyDir(sourcePath, destDir);
+    const { fileCount, totalSize } = await walkDir(destDir);
+    res.json({ demoPath: `demo-assets/${slug}`, fileCount, totalSizeHuman: humanSize(totalSize) });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.delete("/api/demo/:slug", async (req, res) => {
+  try {
+    const slug = slugify(req.params.slug);
+    await fs.rm(path.join(PUBLIC_DEMOS, slug), { recursive: true, force: true });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 // Helpers for the client (suggested filenames)
 app.post("/api/suggest-filename", (req, res) => {
   const { type, title, date } = req.body;

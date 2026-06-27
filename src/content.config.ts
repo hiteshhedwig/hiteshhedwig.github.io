@@ -23,6 +23,7 @@ const projects = defineCollection({
     tags: z.array(z.string()).default([]),
     order: z.number().default(99),
     demoVideo: z.string().optional(),
+    demoPath: z.string().optional(),
     images: z
       .array(z.object({ src: z.string(), alt: z.string() }))
       .default([]),

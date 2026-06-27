@@ -32,6 +32,7 @@ const SCHEMAS = {
       { key: "order", type: "number", placeholder: "Lower = shown first" },
       { key: "tags", type: "tags" },
       { key: "demoVideo", type: "text", placeholder: "YouTube ID only, not full URL" },
+      { key: "demoPath", type: "text", placeholder: "Set automatically via Demo import below", label: "Demo path", hint: "Managed by the Interactive Demo section below — don't edit manually." },
       {
         key: "images",
         type: "repeat",
@@ -512,6 +513,11 @@ async function renderEditor(type, filename, stash = null) {
     setupEditorDrop(editor, schema.imageSubdir || "uploads");
   }
 
+  if (type === "projects") {
+    const demoPanel = buildDemoPanel(filename, data.frontmatter.demoPath || null, form);
+    if (demoPanel) main.appendChild(demoPanel);
+  }
+
   const status = el("span", { class: "save-status" }, "");
   main.appendChild(
     el(
@@ -802,6 +808,7 @@ function buildField(field, value) {
   if (field.type === "text" || field.type === "url") {
     const input = el("input", {
       type: "text",
+      id: "field-" + field.key,
       value: value ?? "",
       placeholder: field.placeholder || "",
     });
@@ -1003,6 +1010,180 @@ function humanize(key) {
     .replace(/([A-Z])/g, " $1")
     .replace(/^./, (c) => c.toUpperCase())
     .trim();
+}
+
+// ── demo panel (projects only) ─────────────────────────────────────────────
+function buildDemoPanel(filename, initialDemoPath, form) {
+  const section = el("div", { class: "form-section", style: "margin-top: 1rem;" });
+
+  const titleRow = el("div", { style: "display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; padding-bottom:0.5rem; border-bottom:1px dashed var(--border);" });
+  titleRow.appendChild(el("h3", { style: "font-family:var(--font-serif); font-size:1.1rem; margin:0; color:var(--ink);" }, "Interactive Demo"));
+  section.appendChild(titleRow);
+
+  const body = el("div", {});
+  section.appendChild(body);
+
+  const projectSlug = filename ? filename.replace(/\.md$/, "") : null;
+
+  async function saveDemoPath(demoPath) {
+    if (!filename) return;
+    const current = await api(`/api/entry/projects/${filename}`);
+    const fm = form.read();
+    if (demoPath) fm.demoPath = demoPath;
+    else delete fm.demoPath;
+    await api("/api/entry/projects", {
+      method: "POST",
+      body: JSON.stringify({ filename, originalFilename: filename, frontmatter: fm, body: current.body || "" }),
+    });
+    const dpInput = document.getElementById("field-demoPath");
+    if (dpInput) dpInput.value = demoPath || "";
+  }
+
+  function statLine(label, value) {
+    return el("div", { style: "display:flex; gap:0.75rem; align-items:baseline; font-size:0.85rem; margin-bottom:0.3rem;" },
+      el("span", { style: "color:var(--ink-lighter); font-family:var(--font-mono); font-size:0.78rem; min-width:4.5rem;" }, label),
+      el("span", { style: "color:var(--ink);" }, value)
+    );
+  }
+
+  function renderEmpty() {
+    body.innerHTML = "";
+    body.appendChild(el("p", { style: "font-size:0.875rem; color:var(--ink-lighter); margin:0 0 1rem;" },
+      "Import a local HTML demo directory to embed on this project's page."));
+
+    if (!projectSlug) {
+      body.appendChild(el("p", { style: "font-size:0.85rem; color:var(--accent); font-style:italic;" },
+        "Save the project first to enable demo import."));
+      return;
+    }
+
+    const row = el("div", { style: "display:flex; gap:0.5rem;" });
+    const pathInput = el("input", { type: "text", id: "demo-path-input", placeholder: "/absolute/path/to/demo/dir", style: "flex:1;" });
+    const inspectBtn = el("button", { class: "btn btn-primary" }, "Inspect");
+    row.appendChild(pathInput);
+    row.appendChild(inspectBtn);
+    body.appendChild(row);
+
+    inspectBtn.addEventListener("click", async () => {
+      const sourcePath = pathInput.value.trim();
+      if (!sourcePath) { toast("enter a path first", true); return; }
+      inspectBtn.disabled = true;
+      inspectBtn.textContent = "Inspecting…";
+      try {
+        const result = await api("/api/demo/inspect", { method: "POST", body: JSON.stringify({ sourcePath }) });
+        renderInspected(sourcePath, result);
+      } catch (e) {
+        toast(e.message, true);
+        inspectBtn.disabled = false;
+        inspectBtn.textContent = "Inspect";
+      }
+    });
+  }
+
+  function renderInspected(sourcePath, result) {
+    body.innerHTML = "";
+
+    const row = el("div", { style: "display:flex; gap:0.5rem; margin-bottom:1rem;" });
+    const pathInput = el("input", { type: "text", id: "demo-path-input", value: sourcePath, style: "flex:1;" });
+    const reBtn = el("button", { class: "btn" }, "Re-inspect");
+    row.appendChild(pathInput);
+    row.appendChild(reBtn);
+    body.appendChild(row);
+
+    const card = el("div", { style: "background:var(--paper); border:1px solid var(--border); border-radius:8px; padding:1rem 1.25rem; margin-bottom:1rem;" });
+    card.appendChild(el("div", { style: "font-size:0.78rem; font-family:var(--font-mono); color:var(--accent); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;" }, "✓ found"));
+    card.appendChild(statLine("files", String(result.fileCount)));
+    card.appendChild(statLine("size", result.totalSizeHuman));
+    card.appendChild(statLine("entry", result.entryPoint || "index.html"));
+    if (result.topDirs && result.topDirs.length > 0) {
+      card.appendChild(statLine("dirs", result.topDirs.join(", ")));
+    }
+    card.appendChild(el("div", { style: "margin-top:0.75rem; padding-top:0.75rem; border-top:1px dashed var(--border); font-size:0.78rem; font-family:var(--font-mono); color:var(--ink-lighter);" },
+      `→ public/demo-assets/${projectSlug}/`));
+    body.appendChild(card);
+
+    const actions = el("div", { style: "display:flex; gap:0.5rem; justify-content:flex-end;" });
+    const cancelBtn = el("button", { class: "btn btn-ghost" }, "Cancel");
+    const copyBtn = el("button", { class: "btn btn-primary" }, "Copy to portfolio →");
+    actions.appendChild(cancelBtn);
+    actions.appendChild(copyBtn);
+    body.appendChild(actions);
+
+    reBtn.addEventListener("click", async () => {
+      const newPath = pathInput.value.trim();
+      if (!newPath) return;
+      reBtn.disabled = true; reBtn.textContent = "Inspecting…";
+      try {
+        const r = await api("/api/demo/inspect", { method: "POST", body: JSON.stringify({ sourcePath: newPath }) });
+        renderInspected(newPath, r);
+      } catch (e) {
+        toast(e.message, true);
+        reBtn.disabled = false; reBtn.textContent = "Re-inspect";
+      }
+    });
+
+    cancelBtn.addEventListener("click", () => renderEmpty());
+
+    copyBtn.addEventListener("click", async () => {
+      copyBtn.disabled = true;
+      copyBtn.textContent = `Copying ${result.fileCount} files…`;
+      try {
+        const { demoPath, fileCount, totalSizeHuman } = await api("/api/demo/copy", {
+          method: "POST",
+          body: JSON.stringify({ sourcePath, projectSlug }),
+        });
+        await saveDemoPath(demoPath);
+        toast("demo copied & saved");
+        renderAttached(demoPath, fileCount, totalSizeHuman);
+      } catch (e) {
+        toast(e.message, true);
+        copyBtn.disabled = false;
+        copyBtn.textContent = "Copy to portfolio →";
+      }
+    });
+  }
+
+  function renderAttached(demoPath, fileCount, totalSizeHuman) {
+    body.innerHTML = "";
+
+    const card = el("div", { style: "background:var(--paper); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:8px; padding:1rem 1.25rem;" });
+    card.appendChild(el("div", { style: "font-size:0.78rem; font-family:var(--font-mono); color:var(--accent); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.6rem;" }, "● demo attached"));
+    card.appendChild(el("div", { style: "font-family:var(--font-mono); font-size:0.85rem; color:var(--ink); margin-bottom:0.25rem;" }, demoPath + "/"));
+    if (fileCount && totalSizeHuman) {
+      card.appendChild(el("div", { style: "font-size:0.82rem; color:var(--ink-lighter);" }, `${fileCount} files · ${totalSizeHuman}`));
+    }
+
+    const actions = el("div", { style: "display:flex; gap:0.5rem; margin-top:1rem; justify-content:flex-end;" });
+    const previewBtn = el("a", { href: `/${demoPath}/index.html`, target: "_blank", class: "btn", style: "text-decoration:none;" }, "Preview ↗");
+    const replaceBtn = el("button", { class: "btn" }, "Replace");
+    const removeBtn = el("button", { class: "btn btn-danger" }, "Remove");
+    actions.appendChild(previewBtn);
+    actions.appendChild(replaceBtn);
+    actions.appendChild(removeBtn);
+    card.appendChild(actions);
+    body.appendChild(card);
+
+    replaceBtn.addEventListener("click", () => renderEmpty());
+
+    removeBtn.addEventListener("click", async () => {
+      if (!confirm("Remove this demo? This will delete the copied files from public/demos/.")) return;
+      removeBtn.disabled = true; removeBtn.textContent = "Removing…";
+      try {
+        await api(`/api/demo/${projectSlug}`, { method: "DELETE" });
+        await saveDemoPath(null);
+        toast("demo removed");
+        renderEmpty();
+      } catch (e) {
+        toast(e.message, true);
+        removeBtn.disabled = false; removeBtn.textContent = "Remove";
+      }
+    });
+  }
+
+  if (initialDemoPath) renderAttached(initialDemoPath, null, null);
+  else renderEmpty();
+
+  return section;
 }
 
 // ── drag-and-drop into EasyMDE ───────────────────────────────────────────

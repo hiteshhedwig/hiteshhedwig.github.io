@@ -60,7 +60,14 @@ const statusColors: Record<string, string> = {
                     </span>
                   ))}
                 </div>
-                <span class="text-xs text-ink-lighter">{project.data.year}</span>
+                <div class="flex items-center gap-3 shrink-0">
+                  {project.data.demoPath && (
+                    <span class="text-xs font-mono px-2 py-0.5 rounded-md bg-accent/10 text-accent border border-accent/20">
+                      demo
+                    </span>
+                  )}
+                  <span class="text-xs text-ink-lighter">{project.data.year}</span>
+                </div>
               </div>
             </a>
           ))}
