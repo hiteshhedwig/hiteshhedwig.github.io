@@ -484,7 +484,7 @@ async function renderEditor(type, filename, stash = null) {
     )
   );
 
-  const form = buildForm(schema, data.frontmatter);
+  const form = buildForm(schema, data.frontmatter, type);
   main.appendChild(form.el);
 
   let editor = null;
@@ -717,7 +717,7 @@ async function renderSiteEditor(fileName) {
     )
   );
 
-  const form = buildForm(schema, data.frontmatter);
+  const form = buildForm(schema, data.frontmatter, type);
   main.appendChild(form.el);
 
   let editor = null;
@@ -773,7 +773,7 @@ async function renderSiteEditor(fileName) {
 }
 
 // ── form builder ───────────────────────────────────────────
-function buildForm(schema, values) {
+function buildForm(schema, values, collectionType) {
   const section = el("div", { class: "form-section" });
   section.appendChild(el("h3", { class: "form-section-title" }, "Details"));
   const form = el("div", { class: "form" });
@@ -781,7 +781,7 @@ function buildForm(schema, values) {
 
   const readers = [];
   for (const field of schema.fields) {
-    const { node, read } = buildField(field, values?.[field.key]);
+    const { node, read } = buildField(field, values?.[field.key], collectionType);
     form.appendChild(node);
     readers.push([field.key, read]);
   }
@@ -801,7 +801,7 @@ function buildForm(schema, values) {
   };
 }
 
-function buildField(field, value) {
+function buildField(field, value, collectionType) {
   const label = field.label || humanize(field.key);
   const required = field.required;
 
@@ -859,25 +859,98 @@ function buildField(field, value) {
 
   if (field.type === "tags") {
     const sep = field.separator || ",";
-    const joiner = sep === "|" ? " | " : ", ";
-    const input = el("input", {
-      type: "text",
-      value: Array.isArray(value) ? value.join(joiner) : value || "",
-      placeholder: `Separated by "${sep === "|" ? "|" : ","}"`,
-    });
-    return wrap(label, required, input, `Separate with "${sep}"`, () => {
-      return input.value
-        .split(sep)
-        .map((s) => s.trim())
-        .filter(Boolean);
-    });
+    // Plain text fallback for non-comma separators (e.g. fun facts with "|")
+    if (sep !== ",") {
+      const joiner = " | ";
+      const input = el("input", {
+        type: "text",
+        value: Array.isArray(value) ? value.join(joiner) : value || "",
+        placeholder: `Separated by "|"`,
+      });
+      return wrap(label, required, input, `Separate with "|"`, () =>
+        input.value.split("|").map((s) => s.trim()).filter(Boolean)
+      );
+    }
+
+    // Pill combobox for comma-separated tags
+    let selected = Array.isArray(value) ? [...value] : [];
+    let allTagsCache = null;
+
+    const pillsEl = el("div", { class: "tag-pills" });
+    const inputEl = el("input", { type: "text", class: "tag-text-input", placeholder: "Type to search or add…" });
+    const dropEl = el("ul", { class: "tag-suggestions hidden" });
+    const wrap2 = el("div", { class: "tag-input-wrap" }, pillsEl, inputEl, dropEl);
+
+    function renderPills() {
+      pillsEl.innerHTML = "";
+      for (const t of selected) {
+        const x = el("button", { type: "button", class: "tag-pill-remove", title: "Remove" }, "×");
+        const pill = el("span", { class: "tag-pill-selected" }, t, x);
+        x.onclick = () => { selected = selected.filter((s) => s !== t); renderPills(); };
+        pillsEl.appendChild(pill);
+      }
+    }
+
+    function showSuggestions(tags) {
+      dropEl.innerHTML = "";
+      if (!tags.length) { dropEl.classList.add("hidden"); return; }
+      for (const t of tags) {
+        const li = el("li", { class: "tag-suggestion-item" }, t);
+        li.onmousedown = (e) => { e.preventDefault(); addTag(t); };
+        dropEl.appendChild(li);
+      }
+      dropEl.classList.remove("hidden");
+    }
+
+    function addTag(t) {
+      t = t.trim();
+      if (t && !selected.includes(t)) { selected.push(t); renderPills(); }
+      inputEl.value = "";
+      dropEl.classList.add("hidden");
+    }
+
+    async function fetchTags() {
+      if (allTagsCache !== null) return allTagsCache;
+      try {
+        const res = await fetch(`/api/tags/${collectionType}`);
+        const json = await res.json();
+        allTagsCache = json.tags || [];
+      } catch { /* leave null so next keystroke retries */ }
+      return allTagsCache || [];
+    }
+
+    inputEl.oninput = async () => {
+      const q = inputEl.value.trim().toLowerCase();
+      if (!q) { dropEl.classList.add("hidden"); return; }
+      const tags = await fetchTags();
+      const selectedLower = selected.map((s) => s.toLowerCase());
+      const matches = tags.filter((t) => t.toLowerCase().includes(q) && !selectedLower.includes(t.toLowerCase()));
+      showSuggestions(matches);
+    };
+
+    inputEl.onkeydown = (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const q = inputEl.value.trim();
+        if (q) addTag(q);
+      } else if (e.key === "Escape") {
+        dropEl.classList.add("hidden");
+      } else if (e.key === "Backspace" && !inputEl.value && selected.length) {
+        selected.pop(); renderPills();
+      }
+    };
+
+    inputEl.onblur = () => setTimeout(() => dropEl.classList.add("hidden"), 150);
+
+    renderPills();
+    return wrap(label, required, wrap2, null, () => selected);
   }
 
   if (field.type === "object") {
     const container = el("div", { class: "repeat-row" });
     const readers = [];
     for (const sub of field.fields) {
-      const { node, read } = buildField(sub, value?.[sub.key]);
+      const { node, read } = buildField(sub, value?.[sub.key], collectionType);
       container.appendChild(node);
       readers.push([sub.key, read]);
     }
@@ -903,7 +976,7 @@ function buildField(field, value) {
       const row = el("div", { class: "repeat-row" });
       const subReaders = [];
       for (const sub of field.fields) {
-        const { node, read } = buildField(sub, rowVal?.[sub.key]);
+        const { node, read } = buildField(sub, rowVal?.[sub.key], collectionType);
         row.appendChild(node);
         subReaders.push([sub.key, read]);
       }

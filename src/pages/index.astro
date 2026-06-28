@@ -18,6 +18,27 @@ const recentPosts = allPosts
 
 const colorMap = ["bg-sky-light", "bg-sage-light", "bg-accent-light/40"];
 
+const TAG_PALETTES = [
+  { bg: "rgba(196,93,62,0.12)",   color: "rgba(160,60,30,0.9)"   },
+  { bg: "rgba(91,127,165,0.15)",  color: "rgba(50,90,140,0.9)"   },
+  { bg: "rgba(122,143,110,0.15)", color: "rgba(70,100,60,0.9)"   },
+  { bg: "rgba(140,100,170,0.14)", color: "rgba(100,60,140,0.9)"  },
+  { bg: "rgba(170,140,60,0.15)",  color: "rgba(120,90,20,0.9)"   },
+  { bg: "rgba(170,80,100,0.13)",  color: "rgba(130,45,65,0.9)"   },
+  { bg: "rgba(60,150,140,0.14)",  color: "rgba(25,105,95,0.9)"   },
+  { bg: "rgba(60,80,150,0.14)",   color: "rgba(30,50,120,0.9)"   },
+  { bg: "rgba(130,140,60,0.14)",  color: "rgba(85,95,15,0.9)"    },
+  { bg: "rgba(80,130,160,0.14)",  color: "rgba(40,90,130,0.9)"   },
+  { bg: "rgba(160,100,60,0.13)",  color: "rgba(120,65,20,0.9)"   },
+  { bg: "rgba(100,60,130,0.13)",  color: "rgba(70,30,105,0.9)"   },
+];
+const allTagsSorted = [...new Set(allProjects.flatMap((p) => p.data.tags))].sort();
+const tagColorMap = new Map(allTagsSorted.map((tag, i) => [tag, TAG_PALETTES[i % TAG_PALETTES.length]]));
+function tagStyle(tag: string) {
+  const p = tagColorMap.get(tag) ?? TAG_PALETTES[0];
+  return `background:${p.bg};color:${p.color}`;
+}
+
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
@@ -90,7 +111,7 @@ function formatDate(date: Date): string {
                       <p class="text-sm text-ink-light leading-relaxed">{project.data.description}</p>
                       <div class="flex gap-2 flex-wrap">
                         {project.data.tags.map((tag) => (
-                          <span class="text-xs font-mono px-2 py-0.5 rounded-md bg-cream-dark text-ink-lighter">
+                          <span class="text-xs font-mono px-2 py-0.5 rounded-md" style={tagStyle(tag)}>
                             {tag}
                           </span>
                         ))}

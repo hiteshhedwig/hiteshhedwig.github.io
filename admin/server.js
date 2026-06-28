@@ -62,6 +62,25 @@ function writeMarkdown(filePath, frontmatter, body) {
 
 // ── API ───────────────────────────────────────────────────────────────
 
+app.get("/api/tags/:type", async (req, res) => {
+  try {
+    const dir = collDir(req.params.type);
+    await ensureDir(dir);
+    const files = (await fs.readdir(dir)).filter((f) => f.endsWith(".md"));
+    const tagSet = new Set();
+    await Promise.all(
+      files.map(async (f) => {
+        const raw = await fs.readFile(path.join(dir, f), "utf8");
+        const { data } = matter(raw);
+        (data.tags || []).forEach((t) => tagSet.add(String(t).trim()));
+      })
+    );
+    res.json({ tags: [...tagSet].sort() });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 app.get("/api/list/:type", async (req, res) => {
   try {
     const type = req.params.type;

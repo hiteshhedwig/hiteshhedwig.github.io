@@ -4,6 +4,29 @@ import Nav from "../../components/Nav.astro";
 import Footer from "../../components/Footer.astro";
 import { getCollection, render } from "astro:content";
 
+const TAG_PALETTES = [
+  { bg: "rgba(196,93,62,0.12)",   color: "rgba(160,60,30,0.9)"   },
+  { bg: "rgba(91,127,165,0.15)",  color: "rgba(50,90,140,0.9)"   },
+  { bg: "rgba(122,143,110,0.15)", color: "rgba(70,100,60,0.9)"   },
+  { bg: "rgba(140,100,170,0.14)", color: "rgba(100,60,140,0.9)"  },
+  { bg: "rgba(170,140,60,0.15)",  color: "rgba(120,90,20,0.9)"   },
+  { bg: "rgba(170,80,100,0.13)",  color: "rgba(130,45,65,0.9)"   },
+  { bg: "rgba(60,150,140,0.14)",  color: "rgba(25,105,95,0.9)"   },
+  { bg: "rgba(60,80,150,0.14)",   color: "rgba(30,50,120,0.9)"   },
+  { bg: "rgba(130,140,60,0.14)",  color: "rgba(85,95,15,0.9)"    },
+  { bg: "rgba(80,130,160,0.14)",  color: "rgba(40,90,130,0.9)"   },
+  { bg: "rgba(160,100,60,0.13)",  color: "rgba(120,65,20,0.9)"   },
+  { bg: "rgba(100,60,130,0.13)",  color: "rgba(70,30,105,0.9)"   },
+];
+
+const allProjects = await getCollection("projects");
+const allTags = [...new Set(allProjects.flatMap((p) => p.data.tags))].sort();
+const tagColorMap = new Map(allTags.map((tag, i) => [tag, TAG_PALETTES[i % TAG_PALETTES.length]]));
+function tagStyle(tag: string) {
+  const p = tagColorMap.get(tag) ?? TAG_PALETTES[0];
+  return `background:${p.bg};color:${p.color}`;
+}
+
 const statusColors: Record<string, string> = {
   Active: "text-sage bg-sage-light/50",
   Completed: "text-sky bg-sky-light/50",
@@ -49,7 +72,7 @@ const { Content } = await render(project);
           <div class="flex items-center gap-4 mt-4">
             <div class="flex gap-2 flex-wrap">
               {project.data.tags.map((tag) => (
-                <span class="text-xs font-mono px-2 py-0.5 rounded-md bg-cream-dark text-ink-lighter">
+                <span class="text-xs font-mono px-2 py-0.5 rounded-md" style={tagStyle(tag)}>
                   {tag}
                 </span>
               ))}
@@ -80,6 +103,71 @@ const { Content } = await render(project);
       </div>
     </section>
 
+    <!-- Media preview cards -->
+    {(project.data.demoVideo || project.data.images.length > 0) && (
+      <section class="bg-cream border-t border-border/40">
+        <div class="max-w-4xl mx-auto px-6 pt-6 pb-8">
+          <div class={`grid gap-4 fade-up ${project.data.demoVideo && project.data.images.length > 0 ? "sm:grid-cols-2" : "max-w-sm"}`}>
+
+            {project.data.demoVideo && (
+              <button id="btn-open-video" class="group relative rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all text-left aspect-video">
+                <img
+                  src={`https://img.youtube.com/vi/${project.data.demoVideo}/maxresdefault.jpg`}
+                  alt="Demo video thumbnail"
+                  class="w-full h-full object-cover"
+                />
+                <div class="absolute inset-0 bg-ink/30 group-hover:bg-ink/20 transition-colors" />
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-14 h-14 rounded-full bg-cream/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-accent ml-1" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="absolute bottom-0 inset-x-0 px-4 py-3 bg-gradient-to-t from-ink/70 to-transparent">
+                  <span class="text-cream text-sm font-medium">Watch Demo</span>
+                </div>
+              </button>
+            )}
+
+            {project.data.images.length > 0 && (
+              <button id="btn-open-gallery" class="group relative rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all text-left aspect-video">
+                <img
+                  src={project.data.images[0].src}
+                  alt={project.data.images[0].alt}
+                  class="w-full h-full object-cover"
+                />
+                <div class="absolute inset-0 bg-ink/30 group-hover:bg-ink/20 transition-colors" />
+                {project.data.images.length > 1 && (
+                  <div class="absolute top-3 right-3 flex gap-1.5">
+                    {project.data.images.slice(0, 5).map((_, i) => (
+                      <div class={`w-1.5 h-1.5 rounded-full ${i === 0 ? "bg-cream" : "bg-cream/45"}`} />
+                    ))}
+                  </div>
+                )}
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-14 h-14 rounded-full bg-cream/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-ink" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                      <rect x="3" y="3" width="7" height="7" rx="1"/>
+                      <rect x="14" y="3" width="7" height="7" rx="1"/>
+                      <rect x="3" y="14" width="7" height="7" rx="1"/>
+                      <rect x="14" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="absolute bottom-0 inset-x-0 px-4 py-3 bg-gradient-to-t from-ink/70 to-transparent">
+                  <span class="text-cream text-sm font-medium">
+                    Gallery &middot; {project.data.images.length} {project.data.images.length === 1 ? "image" : "images"}
+                  </span>
+                </div>
+              </button>
+            )}
+
+          </div>
+        </div>
+      </section>
+    )}
+
     <!-- Content (from markdown body) -->
     <section class="bg-warm-white">
       <div class="max-w-4xl mx-auto px-6 py-10">
@@ -95,65 +183,100 @@ const { Content } = await render(project);
         </div>
       </div>
     </section>
-
-    <!-- Demo Video -->
-    {project.data.demoVideo && (
-      <section class="bg-cream">
-        <div class="max-w-4xl mx-auto px-6 py-10">
-          <h2 class="font-serif text-xl font-semibold mb-4 fade-up">Demo</h2>
-          <div class="rounded-xl overflow-hidden border border-border shadow-sm fade-up">
-            <div class="relative w-full" style="padding-bottom: 56.25%;">
-              <iframe
-                class="absolute inset-0 w-full h-full"
-                src={`https://www.youtube.com/embed/${project.data.demoVideo}`}
-                title={`${project.data.title} demo`}
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-    )}
-
-    <!-- Gallery -->
-    {project.data.images.length > 0 && (
-      <section class={project.data.demoVideo ? "bg-warm-white" : "bg-cream"}>
-        <div class="max-w-4xl mx-auto px-6 py-10">
-          <h2 class="font-serif text-xl font-semibold mb-4 fade-up">Gallery</h2>
-          <div class:list={[
-            "grid gap-4",
-            project.data.images.length === 1 ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2",
-          ]}>
-            {project.data.images.map((image) => (
-              <div class="rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-md transition-shadow fade-up">
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  class="w-full h-auto object-cover"
-                  loading="lazy"
-                />
-                <p class="text-xs text-ink-lighter px-3 py-2 bg-cream/50">{image.alt}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )}
   </main>
+
+  <!-- YouTube modal -->
+  {project.data.demoVideo && (
+    <div id="video-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-ink/85 backdrop-blur-sm p-4" style="display:none">
+      <button id="close-video-modal" class="absolute top-4 right-5 text-cream/70 hover:text-cream text-3xl leading-none">&times;</button>
+      <div class="w-full max-w-4xl rounded-xl overflow-hidden shadow-2xl">
+        <div class="relative w-full" style="padding-bottom:56.25%">
+          <iframe
+            id="video-iframe"
+            class="absolute inset-0 w-full h-full"
+            src=""
+            title={`${project.data.title} demo`}
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          />
+        </div>
+      </div>
+    </div>
+  )}
+
+  <!-- Gallery lightbox -->
+  {project.data.images.length > 0 && (
+    <div id="gallery-lightbox" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-ink/95" style="display:none">
+      <button id="close-gallery-lb" class="absolute top-4 right-5 text-cream/70 hover:text-cream text-3xl leading-none">&times;</button>
+      <button id="prev-lb" class="absolute left-3 top-1/2 -translate-y-1/2 text-cream/60 hover:text-cream text-5xl leading-none px-2 py-4">&#8249;</button>
+      <button id="next-lb" class="absolute right-3 top-1/2 -translate-y-1/2 text-cream/60 hover:text-cream text-5xl leading-none px-2 py-4">&#8250;</button>
+      <img id="lb-img" src="" alt="" class="max-h-[80vh] max-w-[88vw] object-contain rounded-lg shadow-2xl" />
+      <p id="lb-caption" class="text-cream/55 text-sm mt-4 max-w-xl text-center px-6"></p>
+      <p id="lb-counter" class="text-cream/35 text-xs mt-1"></p>
+    </div>
+  )}
 
   <Footer />
 </Base>
 
-<script>
+<script define:vars={{ demoVideoId: project.data.demoVideo, galleryImages: project.data.images }}>
+  // fade-up observer
   const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) entry.target.classList.add("visible");
-      });
-    },
+    (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("visible"); }),
     { threshold: 0, rootMargin: "0px 0px -50px 0px" }
   );
   document.querySelectorAll(".fade-up").forEach((el) => observer.observe(el));
+
+  // ── YouTube modal ──────────────────────────────────────────
+  const videoModal = document.getElementById("video-modal");
+  const videoIframe = document.getElementById("video-iframe");
+  document.getElementById("btn-open-video")?.addEventListener("click", () => {
+    videoIframe.src = `https://www.youtube.com/embed/${demoVideoId}?autoplay=1`;
+    videoModal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  });
+  const closeVideo = () => {
+    videoModal.style.display = "none";
+    videoIframe.src = "";
+    document.body.style.overflow = "";
+  };
+  document.getElementById("close-video-modal")?.addEventListener("click", closeVideo);
+  videoModal?.addEventListener("click", (e) => { if (e.target === videoModal) closeVideo(); });
+
+  // ── Gallery lightbox ───────────────────────────────────────
+  const lightbox = document.getElementById("gallery-lightbox");
+  const lbImg = document.getElementById("lb-img");
+  const lbCaption = document.getElementById("lb-caption");
+  const lbCounter = document.getElementById("lb-counter");
+  let idx = 0;
+
+  const showImg = (i) => {
+    idx = (i + galleryImages.length) % galleryImages.length;
+    lbImg.src = galleryImages[idx].src;
+    lbImg.alt = galleryImages[idx].alt;
+    lbCaption.textContent = galleryImages[idx].alt;
+    lbCounter.textContent = `${idx + 1} / ${galleryImages.length}`;
+  };
+  document.getElementById("btn-open-gallery")?.addEventListener("click", () => {
+    showImg(0);
+    lightbox.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  });
+  const closeGallery = () => { lightbox.style.display = "none"; document.body.style.overflow = ""; };
+  document.getElementById("close-gallery-lb")?.addEventListener("click", closeGallery);
+  document.getElementById("prev-lb")?.addEventListener("click", () => showImg(idx - 1));
+  document.getElementById("next-lb")?.addEventListener("click", () => showImg(idx + 1));
+  lightbox?.addEventListener("click", (e) => { if (e.target === lightbox) closeGallery(); });
+
+  // keyboard nav
+  document.addEventListener("keydown", (e) => {
+    if (lightbox?.style.display !== "none") {
+      if (e.key === "ArrowLeft") showImg(idx - 1);
+      else if (e.key === "ArrowRight") showImg(idx + 1);
+      else if (e.key === "Escape") closeGallery();
+    } else if (videoModal?.style.display !== "none") {
+      if (e.key === "Escape") closeVideo();
+    }
+  });
 </script>
