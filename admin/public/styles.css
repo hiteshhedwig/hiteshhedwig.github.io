@@ -635,6 +635,108 @@ textarea {
   border-color: var(--border);
 }
 
+/* ── git sync ─────────────────────────────────── */
+.git-ahead-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #edf5ed;
+  border: 1px solid #b8d8b8;
+  border-left: 3px solid var(--sage);
+  border-radius: 6px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.git-file-list {
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.git-group {
+  margin-bottom: 1.25rem;
+}
+.git-group:last-child { margin-bottom: 0; }
+
+.git-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
+  border-bottom: 1px dashed var(--border);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.git-count {
+  background: var(--cream-dark);
+  color: var(--ink-lighter);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 10px;
+}
+
+.git-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 5px;
+  transition: background 0.1s;
+}
+.git-file-row:hover { background: var(--cream-dark); }
+
+.git-file-path {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink);
+  word-break: break-all;
+}
+
+.git-badge {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.git-badge-new      { background: #e6f4ea; color: #2e7d32; }
+.git-badge-modified { background: #fff3e0; color: #bf6000; }
+.git-badge-deleted  { background: #fbe9e3; color: var(--accent); }
+
+.git-commit-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.git-output {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--ink);
+  color: var(--warm-white);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.git-output.hidden { display: none; }
+
 /* Make preview read like the blog: constrained width, sensible image sizes */
 .EasyMDEContainer .editor-preview,
 .EasyMDEContainer .editor-preview-side {

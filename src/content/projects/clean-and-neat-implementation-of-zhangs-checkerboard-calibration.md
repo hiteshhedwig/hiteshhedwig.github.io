@@ -4,6 +4,9 @@ description: Clean C++ Implementation of Zhang's Calibration method.
 status: Active
 year: '2026'
 order: 0
+tags:
+  - Computer Vision
+  - C++
 links:
   - label: Github
     href: 'https://github.com/hiteshhedwig/cleancalib-zhang/tree/main'

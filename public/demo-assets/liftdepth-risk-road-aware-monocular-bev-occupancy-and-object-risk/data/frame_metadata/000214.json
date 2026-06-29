@@ -1,0 +1,79 @@
+{
+  "frame_idx": 214,
+  "frame_id": "000214",
+  "timestamp_sec": 21.4,
+  "image_size": {
+    "width": 1242,
+    "height": 375
+  },
+  "objects": [
+    {
+      "frame_idx": 214,
+      "track_id": 168,
+      "class_name": "person",
+      "confidence": 0.7713162302970886,
+      "bbox_xyxy": [
+        291.0968017578125,
+        180.596435546875,
+        326.1296691894531,
+        271.73895263671875
+      ],
+      "depth_m": 13.379715575711497,
+      "bev_x_m": -5.579823119647221,
+      "bev_z_m": 13.379715575711497,
+      "risk": 0.699061425398473,
+      "gate_reason": "person_near_road_sidewalk",
+      "approach_rate_m_per_frame": 0.008965307134541689,
+      "lateral_centering_rate_m_per_frame": 0.003351094616256489
+    },
+    {
+      "frame_idx": 214,
+      "track_id": 240,
+      "class_name": "bus",
+      "confidence": 0.7237085700035095,
+      "bbox_xyxy": [
+        0.0,
+        101.7869873046875,
+        239.3537139892578,
+        283.300537109375
+      ],
+      "depth_m": 12.290682061631447,
+      "bev_x_m": -7.950916305240453,
+      "bev_z_m": 12.290682061631447,
+      "risk": 0.48922755596438783,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": -0.09023199564121143,
+      "lateral_centering_rate_m_per_frame": -0.27328018884114336
+    },
+    {
+      "frame_idx": 214,
+      "track_id": 274,
+      "class_name": "car",
+      "confidence": 0.8281527757644653,
+      "bbox_xyxy": [
+        993.9523315429688,
+        170.0455322265625,
+        1108.575927734375,
+        202.6884002685547
+      ],
+      "depth_m": 27.198692291075922,
+      "bev_x_m": 17.43042568807615,
+      "bev_z_m": 27.198692291075922,
+      "risk": 0.25593304571241315,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": -0.8798907518643198,
+      "lateral_centering_rate_m_per_frame": -0.11855658544198633
+    }
+  ],
+  "reject_counts": {
+    "outside_bev": 2
+  },
+  "assets": {
+    "rgb": "data/rgb/000214.jpg",
+    "depth": "data/depth/000214.jpg",
+    "road_overlay": "data/road_overlay/000214.jpg",
+    "road_bev": "data/road_bev/000214.png",
+    "object_occ": "data/object_occ/000214.png",
+    "risk": "data/risk/000214.png"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "frame_idx": 0,
+  "frame_id": "000000",
+  "timestamp_sec": 0.0,
+  "image_size": {
+    "width": 1242,
+    "height": 375
+  },
+  "objects": [
+    {
+      "frame_idx": 0,
+      "track_id": 1,
+      "class_name": "car",
+      "confidence": 0.8499699831008911,
+      "bbox_xyxy": [
+        0.2309417724609375,
+        181.74105834960938,
+        104.12081146240234,
+        235.1855926513672
+      ],
+      "depth_m": 21.35045051574707,
+      "bev_x_m": -16.49309167442885,
+      "bev_z_m": 21.35045051574707,
+      "risk": 0.3215765758436554,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": 0.0,
+      "lateral_centering_rate_m_per_frame": 0.0
+    },
+    {
+      "frame_idx": 0,
+      "track_id": 2,
+      "class_name": "car",
+      "confidence": 0.8156702518463135,
+      "bbox_xyxy": [
+        99.28912353515625,
+        170.32171630859375,
+        218.91262817382812,
+        224.6624755859375
+      ],
+      "depth_m": 25.654762268066406,
+      "bev_x_m": -16.016355262637592,
+      "bev_z_m": 25.654762268066406,
+      "risk": 0.2732628725012955,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": 0.0,
+      "lateral_centering_rate_m_per_frame": 0.0
+    },
+    {
+      "frame_idx": 0,
+      "track_id": 3,
+      "class_name": "car",
+      "confidence": 0.5959946513175964,
+      "bbox_xyxy": [
+        214.37548828125,
+        178.33123779296875,
+        268.2187805175781,
+        214.91256713867188
+      ],
+      "depth_m": 29.185272216796875,
+      "bev_x_m": -14.8957317409637,
+      "bev_z_m": 29.185272216796875,
+      "risk": 0.233634699607382,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": 0.0,
+      "lateral_centering_rate_m_per_frame": 0.0
+    }
+  ],
+  "reject_counts": {},
+  "assets": {
+    "rgb": "data/rgb/000000.jpg",
+    "depth": "data/depth/000000.jpg",
+    "road_overlay": "data/road_overlay/000000.jpg",
+    "road_bev": "data/road_bev/000000.png",
+    "object_occ": "data/object_occ/000000.png",
+    "risk": "data/risk/000000.png"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "frame_idx": 68,
+  "frame_id": "000068",
+  "timestamp_sec": 6.8,
+  "image_size": {
+    "width": 1242,
+    "height": 375
+  },
+  "objects": [
+    {
+      "frame_idx": 68,
+      "track_id": 41,
+      "class_name": "car",
+      "confidence": 0.8830059766769409,
+      "bbox_xyxy": [
+        0.0,
+        188.30142211914062,
+        142.45925903320312,
+        263.236328125
+      ],
+      "depth_m": 16.597983796685035,
+      "bev_x_m": -10.222406746830986,
+      "bev_z_m": 16.597983796685035,
+      "risk": 0.7065268979035981,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": 1.9030092828566971,
+      "lateral_centering_rate_m_per_frame": 0.25612549069001744
+    },
+    {
+      "frame_idx": 68,
+      "track_id": 22,
+      "class_name": "car",
+      "confidence": 0.8405519127845764,
+      "bbox_xyxy": [
+        693.7526245117188,
+        173.17959594726562,
+        739.0400390625,
+        207.60919189453125
+      ],
+      "depth_m": 31.93781781665054,
+      "bev_x_m": 4.692156159773085,
+      "bev_z_m": 31.93781781665054,
+      "risk": 0.539064213901564,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": 0.8379442350229915,
+      "lateral_centering_rate_m_per_frame": 0.10424240260907247
+    }
+  ],
+  "reject_counts": {},
+  "assets": {
+    "rgb": "data/rgb/000068.jpg",
+    "depth": "data/depth/000068.jpg",
+    "road_overlay": "data/road_overlay/000068.jpg",
+    "road_bev": "data/road_bev/000068.png",
+    "object_occ": "data/object_occ/000068.png",
+    "risk": "data/risk/000068.png"
+  }
+}

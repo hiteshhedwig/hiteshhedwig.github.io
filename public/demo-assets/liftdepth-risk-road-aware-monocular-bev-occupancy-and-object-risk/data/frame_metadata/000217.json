@@ -1,0 +1,60 @@
+{
+  "frame_idx": 217,
+  "frame_id": "000217",
+  "timestamp_sec": 21.7,
+  "image_size": {
+    "width": 1242,
+    "height": 375
+  },
+  "objects": [
+    {
+      "frame_idx": 217,
+      "track_id": 168,
+      "class_name": "person",
+      "confidence": 0.7777162790298462,
+      "bbox_xyxy": [
+        290.47015380859375,
+        180.64828491210938,
+        326.11456298828125,
+        271.7158508300781
+      ],
+      "depth_m": 13.382717996599602,
+      "bev_x_m": -5.584266664496713,
+      "bev_z_m": 13.382717996599602,
+      "risk": 0.6975431662000976,
+      "gate_reason": "person_near_road_sidewalk",
+      "approach_rate_m_per_frame": -0.013242109590896334,
+      "lateral_centering_rate_m_per_frame": -0.0074035453876621915
+    },
+    {
+      "frame_idx": 217,
+      "track_id": 274,
+      "class_name": "car",
+      "confidence": 0.7976479530334473,
+      "bbox_xyxy": [
+        992.2507934570312,
+        169.89158630371094,
+        1108.8326416015625,
+        202.71302795410156
+      ],
+      "depth_m": 27.730551232012804,
+      "bev_x_m": 17.17155870252138,
+      "bev_z_m": 27.730551232012804,
+      "risk": 0.2749595205026991,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": -0.06571040369082226,
+      "lateral_centering_rate_m_per_frame": 0.08017011424281506
+    }
+  ],
+  "reject_counts": {
+    "outside_bev": 2
+  },
+  "assets": {
+    "rgb": "data/rgb/000217.jpg",
+    "depth": "data/depth/000217.jpg",
+    "road_overlay": "data/road_overlay/000217.jpg",
+    "road_bev": "data/road_bev/000217.png",
+    "object_occ": "data/object_occ/000217.png",
+    "risk": "data/risk/000217.png"
+  }
+}

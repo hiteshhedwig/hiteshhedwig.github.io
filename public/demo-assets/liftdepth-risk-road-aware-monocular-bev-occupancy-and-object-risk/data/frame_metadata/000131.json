@@ -1,0 +1,137 @@
+{
+  "frame_idx": 131,
+  "frame_id": "000131",
+  "timestamp_sec": 13.1,
+  "image_size": {
+    "width": 1242,
+    "height": 375
+  },
+  "objects": [
+    {
+      "frame_idx": 131,
+      "track_id": 156,
+      "class_name": "car",
+      "confidence": 0.9145815968513489,
+      "bbox_xyxy": [
+        111.5150375366211,
+        178.23529052734375,
+        317.40081787109375,
+        268.315185546875
+      ],
+      "depth_m": 14.65277713742955,
+      "bev_x_m": -6.5808864584738735,
+      "bev_z_m": 14.65277713742955,
+      "risk": 0.6546020736219575,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": 1.1037843467713362,
+      "lateral_centering_rate_m_per_frame": -0.1724348146646335
+    },
+    {
+      "frame_idx": 131,
+      "track_id": 178,
+      "class_name": "car",
+      "confidence": 0.7188192009925842,
+      "bbox_xyxy": [
+        547.4909057617188,
+        174.73541259765625,
+        663.3477172851562,
+        213.8279571533203
+      ],
+      "depth_m": 29.27804100778936,
+      "bev_x_m": 0.9956056586492439,
+      "bev_z_m": 29.27804100778936,
+      "risk": 0.7466894161195867,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": 0.5831586320206661,
+      "lateral_centering_rate_m_per_frame": 0.6232057770428572
+    },
+    {
+      "frame_idx": 131,
+      "track_id": 168,
+      "class_name": "person",
+      "confidence": 0.7937926054000854,
+      "bbox_xyxy": [
+        353.94329833984375,
+        173.2255096435547,
+        381.7676696777344,
+        252.44448852539062
+      ],
+      "depth_m": 16.978369850477673,
+      "bev_x_m": -5.615844151226554,
+      "bev_z_m": 16.978369850477673,
+      "risk": 0.6529739831642081,
+      "gate_reason": "person_near_road_sidewalk",
+      "approach_rate_m_per_frame": 0.08726662931745466,
+      "lateral_centering_rate_m_per_frame": -0.009344579798150399
+    },
+    {
+      "frame_idx": 131,
+      "track_id": 207,
+      "class_name": "truck",
+      "confidence": 0.7817746996879578,
+      "bbox_xyxy": [
+        834.9672241210938,
+        159.67684936523438,
+        927.3009033203125,
+        202.8553009033203
+      ],
+      "depth_m": 33.389326371979344,
+      "bev_x_m": 13.74352620940672,
+      "bev_z_m": 33.389326371979344,
+      "risk": 0.3129445162149736,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": 0.3125419637806388,
+      "lateral_centering_rate_m_per_frame": 0.7510504132376283
+    },
+    {
+      "frame_idx": 131,
+      "track_id": 130,
+      "class_name": "car",
+      "confidence": 0.6952604651451111,
+      "bbox_xyxy": [
+        407.25787353515625,
+        178.75558471679688,
+        471.9433898925781,
+        209.52398681640625
+      ],
+      "depth_m": 33.56883187430883,
+      "bev_x_m": -8.729992993521071,
+      "bev_z_m": 33.56883187430883,
+      "risk": 0.2028746268580237,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": -0.042944676322434816,
+      "lateral_centering_rate_m_per_frame": 0.4329477916979787
+    },
+    {
+      "frame_idx": 131,
+      "track_id": 206,
+      "class_name": "person",
+      "confidence": 0.4807896912097931,
+      "bbox_xyxy": [
+        387.2308044433594,
+        179.88278198242188,
+        413.8863220214844,
+        239.4738006591797
+      ],
+      "depth_m": 22.103213321875863,
+      "bev_x_m": -6.166200419932229,
+      "bev_z_m": 22.103213321875863,
+      "risk": 0.5310305041978991,
+      "gate_reason": "person_near_road_sidewalk",
+      "approach_rate_m_per_frame": -0.11058124502658018,
+      "lateral_centering_rate_m_per_frame": -0.1592268311506242
+    }
+  ],
+  "reject_counts": {
+    "outside_bev": 2,
+    "vehicle_not_on_road": 1
+  },
+  "assets": {
+    "rgb": "data/rgb/000131.jpg",
+    "depth": "data/depth/000131.jpg",
+    "road_overlay": "data/road_overlay/000131.jpg",
+    "road_bev": "data/road_bev/000131.png",
+    "object_occ": "data/object_occ/000131.png",
+    "risk": "data/risk/000131.png"
+  }
+}

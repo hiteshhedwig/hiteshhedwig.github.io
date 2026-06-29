@@ -1,0 +1,21 @@
+{
+  "frame_idx": 46,
+  "frame_id": "000046",
+  "timestamp_sec": 4.6,
+  "image_size": {
+    "width": 1242,
+    "height": 375
+  },
+  "objects": [],
+  "reject_counts": {
+    "outside_bev": 2
+  },
+  "assets": {
+    "rgb": "data/rgb/000046.jpg",
+    "depth": "data/depth/000046.jpg",
+    "road_overlay": "data/road_overlay/000046.jpg",
+    "road_bev": "data/road_bev/000046.png",
+    "object_occ": "data/object_occ/000046.png",
+    "risk": "data/risk/000046.png"
+  }
+}

@@ -5,6 +5,10 @@ import fs from "node:fs/promises";
 import fssync from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -353,6 +357,135 @@ app.delete("/api/demo/:slug", async (req, res) => {
     res.json({ ok: true });
   } catch (e) {
     res.status(400).json({ error: e.message });
+  }
+});
+
+// ── Git sync ──────────────────────────────────────────────────────────────
+
+function categorizePath(filePath) {
+  if (filePath.startsWith("src/content/projects/")) return "projects";
+  if (filePath.startsWith("src/content/blog/")) return "blog";
+  if (filePath.startsWith("src/content/videos/")) return "videos";
+  if (filePath.startsWith("src/content/bookmarks/")) return "bookmarks";
+  if (filePath.startsWith("src/content/site/")) return "site";
+  if (filePath.startsWith("src/content/")) return "content";
+  if (
+    filePath.startsWith("public/images/") ||
+    filePath.startsWith("public/demos/") ||
+    filePath.startsWith("public/demo-assets/")
+  ) return "assets";
+  return "other";
+}
+
+async function gitRemoteAndBranch() {
+  const { stdout: remoteOut } = await execFileAsync("git", ["remote"], { cwd: ROOT });
+  const remote = remoteOut.trim().split("\n").filter(Boolean)[0] || "origin";
+  const { stdout: branchOut } = await execFileAsync("git", ["branch", "--show-current"], { cwd: ROOT });
+  const branch = branchOut.trim() || "main";
+  return { remote, branch };
+}
+
+app.get("/api/git/status", async (req, res) => {
+  try {
+    const { stdout } = await execFileAsync("git", ["status", "--porcelain"], { cwd: ROOT });
+
+    let hasRemote = false;
+    let remoteName = null;
+    try {
+      const { stdout: r } = await execFileAsync("git", ["remote"], { cwd: ROOT });
+      const remotes = r.trim().split("\n").filter(Boolean);
+      if (remotes.length) { hasRemote = true; remoteName = remotes[0]; }
+    } catch {}
+
+    let currentBranch = "main";
+    try {
+      const { stdout: b } = await execFileAsync("git", ["branch", "--show-current"], { cwd: ROOT });
+      currentBranch = b.trim() || "main";
+    } catch {}
+
+    let aheadCount = 0;
+    try {
+      const { stdout: a } = await execFileAsync("git", ["rev-list", "--count", "@{u}..HEAD"], { cwd: ROOT });
+      aheadCount = parseInt(a.trim()) || 0;
+    } catch {
+      try {
+        if (remoteName) {
+          const ref = `${remoteName}/${currentBranch}`;
+          const { stdout: a } = await execFileAsync("git", ["rev-list", "--count", `${ref}..HEAD`], { cwd: ROOT });
+          aheadCount = parseInt(a.trim()) || 0;
+        }
+      } catch {}
+    }
+
+    const files = [];
+    for (const line of stdout.split("\n").filter(Boolean)) {
+      const xy = line.slice(0, 2);
+      let filePath = line.slice(3).trim();
+      if (filePath.includes(" -> ")) filePath = filePath.split(" -> ")[1].trim();
+      if (filePath.startsWith('"') && filePath.endsWith('"')) {
+        try { filePath = JSON.parse(filePath); } catch {}
+      }
+      let status;
+      if (xy.trimEnd() === "??") status = "new";
+      else if (xy.includes("D")) status = "deleted";
+      else status = "modified";
+      files.push({ path: filePath, status, category: categorizePath(filePath) });
+    }
+
+    res.json({ files, hasRemote, aheadCount, remoteName, currentBranch });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post("/api/git/commit", async (req, res) => {
+  try {
+    const { files, message, push } = req.body;
+    if (!Array.isArray(files) || !files.length) throw new Error("no files selected");
+    const msg = (message || "").trim();
+    if (!msg) throw new Error("commit message required");
+    for (const f of files) {
+      if (f.includes("..") || path.isAbsolute(f)) throw new Error(`unsafe path: ${f}`);
+    }
+
+    await execFileAsync("git", ["add", "--", ...files], { cwd: ROOT, maxBuffer: 10e6 });
+
+    let output = "";
+    try {
+      const { stdout, stderr } = await execFileAsync("git", ["commit", "-m", msg], { cwd: ROOT, maxBuffer: 10e6 });
+      output += stdout + (stderr || "");
+    } catch (commitErr) {
+      const errText = (commitErr.stdout || "") + (commitErr.stderr || "");
+      if (errText.includes("nothing to commit") || errText.includes("nothing added to commit")) {
+        output += "nothing new to commit\n";
+      } else {
+        throw new Error(commitErr.stderr || commitErr.message);
+      }
+    }
+
+    if (push) {
+      const { remote, branch } = await gitRemoteAndBranch();
+      try {
+        const { stdout: pOut, stderr: pErr } = await execFileAsync("git", ["push", remote, branch], { cwd: ROOT, maxBuffer: 10e6 });
+        output += pOut + pErr;
+      } catch (pushErr) {
+        throw new Error(pushErr.stderr || pushErr.message);
+      }
+    }
+
+    res.json({ ok: true, output: output.trim() });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post("/api/git/push", async (req, res) => {
+  try {
+    const { remote, branch } = await gitRemoteAndBranch();
+    const { stdout, stderr } = await execFileAsync("git", ["push", remote, branch], { cwd: ROOT, maxBuffer: 10e6 });
+    res.json({ ok: true, output: (stdout + stderr).trim() });
+  } catch (e) {
+    res.status(400).json({ error: e.stderr || e.message });
   }
 });
 

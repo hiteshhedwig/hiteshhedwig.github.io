@@ -1,0 +1,41 @@
+{
+  "frame_idx": 15,
+  "frame_id": "000015",
+  "timestamp_sec": 1.5,
+  "image_size": {
+    "width": 1242,
+    "height": 375
+  },
+  "objects": [
+    {
+      "frame_idx": 15,
+      "track_id": 1,
+      "class_name": "truck",
+      "confidence": 0.7618279457092285,
+      "bbox_xyxy": [
+        0.0,
+        162.73239135742188,
+        96.78244018554688,
+        245.07603454589844
+      ],
+      "depth_m": 19.030807282426643,
+      "bev_x_m": -14.788500556603733,
+      "bev_z_m": 19.030807282426643,
+      "risk": 0.6098563149486068,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": 0.7663448362236451,
+      "lateral_centering_rate_m_per_frame": 0.5892841745164858
+    }
+  ],
+  "reject_counts": {
+    "bad_depth": 1
+  },
+  "assets": {
+    "rgb": "data/rgb/000015.jpg",
+    "depth": "data/depth/000015.jpg",
+    "road_overlay": "data/road_overlay/000015.jpg",
+    "road_bev": "data/road_bev/000015.png",
+    "object_occ": "data/object_occ/000015.png",
+    "risk": "data/risk/000015.png"
+  }
+}

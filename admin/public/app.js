@@ -209,6 +209,7 @@ document.querySelectorAll(".nav-item").forEach((btn) => {
     const view = btn.dataset.view;
     if (view === "list") renderList(btn.dataset.type);
     else if (view === "site") renderSiteEditor(btn.dataset.file);
+    else if (view === "git") renderGitSync();
   });
 });
 
@@ -1257,6 +1258,201 @@ function buildDemoPanel(filename, initialDemoPath, form) {
   else renderEmpty();
 
   return section;
+}
+
+// ── git sync ──────────────────────────────────────────────────────────────
+
+const GIT_GROUPS = [
+  { key: "projects",  label: "Projects",              defaultChecked: true },
+  { key: "blog",      label: "Blog posts",            defaultChecked: true },
+  { key: "bookmarks", label: "Bookmarks",             defaultChecked: true },
+  { key: "site",      label: "Site files",            defaultChecked: true },
+  { key: "videos",    label: "Videos",                defaultChecked: true },
+  { key: "content",   label: "Other content",         defaultChecked: true },
+  { key: "assets",    label: "Assets (images, demos)", defaultChecked: false },
+  { key: "other",     label: "Other files",           defaultChecked: false },
+];
+
+function suggestMessage(files) {
+  const newContent  = files.filter(f => f.status === "new"      && f.category !== "assets" && f.category !== "other");
+  const modContent  = files.filter(f => f.status === "modified" && f.category !== "assets" && f.category !== "other");
+  const parts = [];
+  if (newContent.length === 1) {
+    const name = newContent[0].path.split("/").pop().replace(/\.md$/, "");
+    parts.push(`Add ${name}`);
+  } else if (newContent.length > 1) {
+    parts.push(`Add ${newContent.length} entries`);
+  }
+  if (modContent.length === 1) {
+    const name = modContent[0].path.split("/").pop().replace(/\.md$/, "");
+    parts.push(`Update ${name}`);
+  } else if (modContent.length > 1) {
+    parts.push(`Update ${modContent.length} entries`);
+  }
+  return parts.join(", ") || "Update portfolio";
+}
+
+async function renderGitSync() {
+  main.innerHTML = "";
+
+  main.appendChild(
+    el("div", { class: "page-header" },
+      el("div", {},
+        el("h1", { class: "page-title" }, "Push to GitHub"),
+        el("div", { class: "page-sub" }, "Stage, commit, and push content changes")
+      ),
+      el("button", { class: "btn btn-ghost", onclick: renderGitSync }, "↺ refresh")
+    )
+  );
+
+  const body = el("div", {});
+  main.appendChild(body);
+  body.appendChild(el("div", { class: "empty" }, "Checking status…"));
+
+  let status;
+  try {
+    status = await api("/api/git/status");
+  } catch (e) {
+    body.innerHTML = "";
+    body.appendChild(el("div", { class: "empty" }, `git error: ${e.message}`));
+    return;
+  }
+
+  body.innerHTML = "";
+
+  // Banner for already-committed-but-not-pushed work
+  if (status.aheadCount > 0) {
+    const n = status.aheadCount;
+    const pushBtn = el("button", { class: "btn btn-primary" }, `Push ${n} commit${n > 1 ? "s" : ""} ↑`);
+    pushBtn.onclick = async () => {
+      pushBtn.disabled = true; pushBtn.textContent = "Pushing…";
+      try {
+        const r = await api("/api/git/push", { method: "POST" });
+        toast("pushed to GitHub ✓");
+        setTimeout(renderGitSync, 800);
+      } catch (e) {
+        toast(e.message, true);
+        pushBtn.disabled = false; pushBtn.textContent = `Push ${n} commit${n > 1 ? "s" : ""} ↑`;
+      }
+    };
+    body.appendChild(
+      el("div", { class: "git-ahead-banner" },
+        el("span", {}, `${n} commit${n > 1 ? "s" : ""} committed but not yet pushed to ${status.remoteName || "remote"}`),
+        pushBtn
+      )
+    );
+  }
+
+  if (!status.files.length) {
+    if (!status.aheadCount) {
+      body.appendChild(el("div", { class: "empty" }, "Everything is up to date ✓"));
+    }
+    return;
+  }
+
+  // Group files
+  const grouped = {};
+  for (const g of GIT_GROUPS) grouped[g.key] = [];
+  for (const f of status.files) (grouped[f.category] || grouped.other).push(f);
+
+  const checkboxMap = new Map();
+  const fileListEl = el("div", { class: "git-file-list" });
+
+  for (const gDef of GIT_GROUPS) {
+    const files = grouped[gDef.key];
+    if (!files.length) continue;
+
+    const groupEl = el("div", { class: "git-group" });
+    const fileCbs = [];
+
+    const headerCb = el("input", { type: "checkbox" });
+    headerCb.checked = gDef.defaultChecked;
+
+    groupEl.appendChild(
+      el("div", { class: "git-group-header" },
+        headerCb,
+        el("span", {}, gDef.label),
+        el("span", { class: "git-count" }, String(files.length))
+      )
+    );
+
+    for (const f of files) {
+      const cb = el("input", { type: "checkbox" });
+      cb.checked = gDef.defaultChecked;
+      fileCbs.push(cb);
+      checkboxMap.set(f.path, cb);
+
+      const displayName = f.category === "assets" || f.category === "other"
+        ? f.path
+        : f.path.split("/").pop();
+
+      groupEl.appendChild(
+        el("div", { class: "git-file-row" },
+          cb,
+          el("span", { class: "git-file-path" }, displayName),
+          el("span", { class: `git-badge git-badge-${f.status}` }, f.status)
+        )
+      );
+    }
+
+    headerCb.onchange = () => { for (const cb of fileCbs) cb.checked = headerCb.checked; };
+    fileListEl.appendChild(groupEl);
+  }
+
+  body.appendChild(fileListEl);
+
+  // Commit message + actions
+  const msgInput = el("input", { type: "text", value: suggestMessage(status.files), placeholder: "Commit message…" });
+  body.appendChild(
+    el("div", { class: "git-commit-section" },
+      el("label", {}, "Commit message"),
+      msgInput
+    )
+  );
+
+  const outputEl = el("pre", { class: "git-output hidden" });
+  const commitBtn = el("button", { class: "btn" }, "Commit");
+  const pushBtn   = el("button", { class: "btn btn-primary" }, "Commit & Push ↑");
+
+  async function doCommit(withPush) {
+    const selected = [...checkboxMap.entries()].filter(([, cb]) => cb.checked).map(([p]) => p);
+    if (!selected.length) { toast("select at least one file", true); return; }
+    const msg = msgInput.value.trim();
+    if (!msg) { toast("enter a commit message", true); return; }
+
+    commitBtn.disabled = true; pushBtn.disabled = true;
+    commitBtn.textContent = withPush ? "Pushing…" : "Committing…";
+
+    try {
+      const result = await api("/api/git/commit", {
+        method: "POST",
+        body: JSON.stringify({ files: selected, message: msg, push: withPush }),
+      });
+      outputEl.textContent = result.output || "done";
+      outputEl.classList.remove("hidden");
+      toast(withPush ? "pushed to GitHub ✓" : "committed ✓");
+      setTimeout(renderGitSync, 1500);
+    } catch (e) {
+      outputEl.textContent = e.message;
+      outputEl.classList.remove("hidden");
+      toast(e.message, true);
+      commitBtn.disabled = false; pushBtn.disabled = false;
+      commitBtn.textContent = "Commit";
+      pushBtn.textContent   = "Commit & Push ↑";
+    }
+  }
+
+  commitBtn.onclick = () => doCommit(false);
+  pushBtn.onclick   = () => doCommit(true);
+
+  body.appendChild(
+    el("div", { class: "form-actions" },
+      el("div", { class: "spacer" }),
+      commitBtn,
+      pushBtn
+    )
+  );
+  body.appendChild(outputEl);
 }
 
 // ── drag-and-drop into EasyMDE ───────────────────────────────────────────

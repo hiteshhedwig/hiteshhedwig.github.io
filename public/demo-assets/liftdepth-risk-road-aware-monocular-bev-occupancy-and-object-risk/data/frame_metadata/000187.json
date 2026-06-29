@@ -1,0 +1,58 @@
+{
+  "frame_idx": 187,
+  "frame_id": "000187",
+  "timestamp_sec": 18.7,
+  "image_size": {
+    "width": 1242,
+    "height": 375
+  },
+  "objects": [
+    {
+      "frame_idx": 187,
+      "track_id": 168,
+      "class_name": "person",
+      "confidence": 0.7395609021186829,
+      "bbox_xyxy": [
+        302.1488952636719,
+        176.68972778320312,
+        336.51165771484375,
+        270.4674987792969
+      ],
+      "depth_m": 13.878222998380885,
+      "bev_x_m": -5.588887583093454,
+      "bev_z_m": 13.878222998380885,
+      "risk": 0.6897618255664448,
+      "gate_reason": "person_near_road_sidewalk",
+      "approach_rate_m_per_frame": -0.05970838170773263,
+      "lateral_centering_rate_m_per_frame": -0.020487257372686862
+    },
+    {
+      "frame_idx": 187,
+      "track_id": 240,
+      "class_name": "bus",
+      "confidence": 0.8647514581680298,
+      "bbox_xyxy": [
+        294.0682067871094,
+        133.97821044921875,
+        623.7471923828125,
+        226.28834533691406
+      ],
+      "depth_m": 24.66116072880387,
+      "bev_x_m": -4.111432513289271,
+      "bev_z_m": 24.66116072880387,
+      "risk": 0.6617591209932936,
+      "gate_reason": "vehicle_on_road",
+      "approach_rate_m_per_frame": 0.45844598231416,
+      "lateral_centering_rate_m_per_frame": -0.4630046476427587
+    }
+  ],
+  "reject_counts": {},
+  "assets": {
+    "rgb": "data/rgb/000187.jpg",
+    "depth": "data/depth/000187.jpg",
+    "road_overlay": "data/road_overlay/000187.jpg",
+    "road_bev": "data/road_bev/000187.png",
+    "object_occ": "data/object_occ/000187.png",
+    "risk": "data/risk/000187.png"
+  }
+}
