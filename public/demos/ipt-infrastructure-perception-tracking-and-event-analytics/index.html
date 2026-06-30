@@ -401,7 +401,7 @@ function playInterval() {
   return s ? Math.round(100 / parseFloat(s.value)) : 100;
 }
 
-function playStep() {
+function advanceFrame() {
   const visible = visibleFramesForSelectedTrack();
   if (!visible.length) return;
   if (selectedTrack() === "ALL") {
@@ -413,14 +413,25 @@ function playStep() {
     current = visible[pos];
   }
   frameSlider.value = current;
-  render();
 }
 
 function togglePlay() {
   playing = !playing;
   playBtn.textContent = playing ? "Pause" : "Play";
-  if (timer) clearInterval(timer);
-  if (playing) timer = setInterval(playStep, playInterval());
+  if (!playing) return;
+
+  const interval = playInterval();
+  (async function playLoop() {
+    while (playing) {
+      const t0 = Date.now();
+      advanceFrame();
+      const frame = DATA.frames[current];
+      await new Promise(resolve => loadImage(frame.bev_image, resolve));
+      render();
+      const elapsed = Date.now() - t0;
+      if (playing) await new Promise(r => setTimeout(r, Math.max(0, interval - elapsed)));
+    }
+  })();
 }
 
 function worldToBev(x, y, canvas) {

@@ -626,23 +626,31 @@
       current = idx;
       const id = pad(current);
 
-      els.rgbImg.src = `data/rgb/${id}.jpg`;
-      els.depthImg.src = `data/depth/${id}.jpg`;
-      els.roadOverlayImg.src = `data/road_overlay/${id}.jpg`;
-      els.roadBevImg.src = `data/road_bev/${id}.png`;
-      els.objOccImg.src = `data/object_occ/${id}.png`;
-      els.riskImg.src = `data/risk/${id}.png`;
+      els.rgbImg.src = `data/rgb/${id}.webp`;
+      els.depthImg.src = `data/depth/${id}.webp`;
+      els.roadOverlayImg.src = `data/road_overlay/${id}.webp`;
+      els.roadBevImg.src = `data/road_bev/${id}.webp`;
+      els.objOccImg.src = `data/object_occ/${id}.webp`;
+      els.riskImg.src = `data/risk/${id}.webp`;
 
       els.slider.value = current;
       els.frameReadout.textContent = `Frame ${current + 1} / ${meta.num_frames}`;
 
-      const drawWhenReady = () => {
-        redrawOverlays();
-        renderSidebar();
-      };
+      await new Promise(resolve => {
+        if (els.rgbImg.complete && els.rgbImg.naturalWidth > 0) resolve();
+        else { els.rgbImg.onload = resolve; els.rgbImg.onerror = resolve; }
+      });
 
-      if (els.rgbImg.complete) drawWhenReady();
-      else els.rgbImg.onload = drawWhenReady;
+      redrawOverlays();
+      renderSidebar();
+
+      // Prefetch next 3 frames
+      for (let i = 1; i <= 3; i++) {
+        const nid = pad(Math.min(current + i, meta.num_frames - 1));
+        ['rgb','depth','road_overlay','road_bev','object_occ','risk'].forEach(t => {
+          const img = new Image(); img.src = `data/${t}/${nid}.webp`;
+        });
+      }
     }
 
     function togglePlay() {
@@ -650,13 +658,16 @@
       els.playBtn.textContent = playing ? "Pause" : "Play";
 
       if (playing) {
-        timer = setInterval(() => {
-          const next = current + 1 >= meta.num_frames ? 0 : current + 1;
-          goToFrame(next);
-        }, Number(els.speed.value));
-      } else {
-        clearInterval(timer);
-        timer = null;
+        const interval = Number(els.speed.value);
+        (async function playLoop() {
+          while (playing) {
+            const t0 = Date.now();
+            const next = current + 1 >= meta.num_frames ? 0 : current + 1;
+            await goToFrame(next);
+            const elapsed = Date.now() - t0;
+            if (playing) await new Promise(r => setTimeout(r, Math.max(0, interval - elapsed)));
+          }
+        })();
       }
     }
 
