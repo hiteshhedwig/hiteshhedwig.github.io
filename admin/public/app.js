@@ -1227,15 +1227,45 @@ function buildDemoPanel(filename, initialDemoPath, form) {
       card.appendChild(el("div", { style: "font-size:0.82rem; color:var(--ink-lighter);" }, `${fileCount} files · ${totalSizeHuman}`));
     }
 
+    const optimizeNote = el("div", { id: "optimize-note", style: "font-size:0.78rem; font-family:var(--font-mono); color:var(--ink-lighter); margin-top:0.5rem;" }, "");
+    card.appendChild(optimizeNote);
+
     const actions = el("div", { style: "display:flex; gap:0.5rem; margin-top:1rem; justify-content:flex-end;" });
     const previewBtn = el("a", { href: `/${demoPath}/index.html`, target: "_blank", class: "btn", style: "text-decoration:none;" }, "Preview ↗");
+    const optimizeBtn = el("button", { class: "btn", title: "Convert JPG/PNG images to WebP in-place" }, "Optimize images");
     const replaceBtn = el("button", { class: "btn" }, "Replace");
     const removeBtn = el("button", { class: "btn btn-danger" }, "Remove");
     actions.appendChild(previewBtn);
+    actions.appendChild(optimizeBtn);
     actions.appendChild(replaceBtn);
     actions.appendChild(removeBtn);
     card.appendChild(actions);
     body.appendChild(card);
+
+    optimizeBtn.addEventListener("click", async () => {
+      optimizeBtn.disabled = true;
+      optimizeBtn.textContent = "Optimizing…";
+      optimizeNote.textContent = "";
+      try {
+        const r = await api(`/api/demo/${projectSlug}/optimize`, {
+          method: "POST",
+          body: JSON.stringify({ demoPath }),
+        });
+        if (r.converted === 0) {
+          optimizeNote.textContent = "No JPG/PNG images found — already optimized.";
+        } else {
+          optimizeNote.textContent = `✓ ${r.converted} images converted · ${r.beforeHuman} → ${r.afterHuman} (saved ${r.pct}%)`;
+          optimizeNote.style.color = "var(--accent)";
+        }
+        optimizeBtn.textContent = "Optimize images";
+        optimizeBtn.disabled = false;
+      } catch (e) {
+        optimizeNote.textContent = `Error: ${e.message}`;
+        optimizeNote.style.color = "red";
+        optimizeBtn.textContent = "Optimize images";
+        optimizeBtn.disabled = false;
+      }
+    });
 
     replaceBtn.addEventListener("click", () => renderEmpty());
 

@@ -360,6 +360,65 @@ app.delete("/api/demo/:slug", async (req, res) => {
   }
 });
 
+app.post("/api/demo/:slug/optimize", async (req, res) => {
+  try {
+    const { demoPath } = req.body;
+    if (!demoPath) throw new Error("demoPath required");
+    const demoDir = path.join(PUBLIC_DIR, demoPath);
+    await fs.access(demoDir);
+
+    // Collect all convertible images
+    async function walkImages(dir, out = []) {
+      for (const item of await fs.readdir(dir, { withFileTypes: true })) {
+        const full = path.join(dir, item.name);
+        if (item.isDirectory()) await walkImages(full, out);
+        else if (/\.(jpg|jpeg|png)$/i.test(item.name)) out.push(full);
+      }
+      return out;
+    }
+
+    const images = await walkImages(demoDir);
+    if (!images.length) return res.json({ converted: 0, beforeHuman: "0 KB", afterHuman: "0 KB", savedHuman: "0 KB", pct: 0 });
+
+    let totalBefore = 0, totalAfter = 0, converted = 0;
+    for (const src of images) {
+      const dest = src.replace(/\.(jpg|jpeg|png)$/i, ".webp");
+      const before = (await fs.stat(src)).size;
+      try {
+        await execFileAsync("cwebp", ["-q", "82", src, "-o", dest]);
+        const after = (await fs.stat(dest)).size;
+        await fs.unlink(src);
+        totalBefore += before;
+        totalAfter += after;
+        converted++;
+      } catch {
+        // cwebp not found or failed for this file — skip
+      }
+    }
+
+    if (converted === 0) throw new Error("cwebp not found or all conversions failed");
+
+    // Update .jpg/.png references in text files within the demo folder
+    async function updateRefs(dir) {
+      for (const item of await fs.readdir(dir, { withFileTypes: true })) {
+        const full = path.join(dir, item.name);
+        if (item.isDirectory()) { await updateRefs(full); continue; }
+        if (!/\.(html|js|json)$/i.test(item.name)) continue;
+        const text = await fs.readFile(full, "utf8");
+        const updated = text.replace(/\.(jpg|jpeg|png)(?=[^a-zA-Z]|$)/gi, ".webp");
+        if (updated !== text) await fs.writeFile(full, updated, "utf8");
+      }
+    }
+    await updateRefs(demoDir);
+
+    const saved = totalBefore - totalAfter;
+    const pct = Math.round((saved / totalBefore) * 100);
+    res.json({ converted, beforeHuman: humanSize(totalBefore), afterHuman: humanSize(totalAfter), savedHuman: humanSize(saved), pct });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 // ── Git sync ──────────────────────────────────────────────────────────────
 
 function categorizePath(filePath) {
