@@ -330,6 +330,7 @@
     let showImageBoxes = true;
     let show3DBoxes = false;
     let lastImageClick = null;
+    let rayFadeT = 1.0;
 
     document.getElementById("frame-id").textContent = SCENE_DATA.target_frame;
 
@@ -653,9 +654,13 @@
 
     function drawActiveRaysForObject(obj, selectedProjection) {
       activeRayGroup.clear();
+      rayFadeT = 0.0;
 
       function addRay(seg, colorHex, opacity) {
         addLineToGroup(activeRayGroup, seg[0], seg[1], colorHex, opacity);
+        const line = activeRayGroup.children[activeRayGroup.children.length - 1];
+        line.material.userData.targetOpacity = opacity;
+        line.material.opacity = 0;
       }
 
       let count = 0;
@@ -690,6 +695,8 @@
         });
         const sphere = new THREE.Mesh(sphereGeom, sphereMat);
         sphere.position.set(p[0], p[1], p[2]);
+        sphere.scale.setScalar(0);
+        sphere.userData.isSphere = true;
         activeRayGroup.add(sphere);
       });
 
@@ -841,7 +848,6 @@
         camSelect.value = selectedCameraName;
       }
 
-      controls.target.set(obj.center_web[0], obj.center_web[1], obj.center_web[2]);
       refreshCameraImage();
       updateSelectedPanel(obj, proj, reason);
     }
@@ -941,6 +947,17 @@
 
     function animate() {
       requestAnimationFrame(animate);
+      if (rayFadeT < 1.0) {
+        rayFadeT = Math.min(1.0, rayFadeT + 0.045);
+        activeRayGroup.children.forEach(child => {
+          if (child.userData.isSphere) {
+            child.scale.setScalar(rayFadeT);
+          } else if (child.material) {
+            child.material.opacity = (child.material.userData.targetOpacity ?? 1.0) * rayFadeT;
+            child.material.needsUpdate = true;
+          }
+        });
+      }
       controls.update();
       renderer.render(scene, viewCamera);
     }
