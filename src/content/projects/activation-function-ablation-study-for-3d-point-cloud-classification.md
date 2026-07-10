@@ -5,7 +5,7 @@ description: >-
   latency under a fair, single-switch setup
 status: Completed
 year: '2025'
-order: 1
+order: 2
 tags:
   - activations
   - deeplearning
